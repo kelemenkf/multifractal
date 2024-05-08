@@ -73,14 +73,13 @@ class Multifractal():
         fig,ax = plt.subplots()
         start = self.convert_address(address)
         h = len(address)
-        if (start + 1) == len(self.support):
+        if start + self.b**(self.k-h) == len(self.support):
             end = self.support_endpoints[1]
         else:
             end = self.support[start+self.b**(self.k-h)]
-        print(self.b**(self.k-h))
         plot = ax.bar(np.linspace(self.support[start],end,self.b**(self.k-h),endpoint=False),self.mu[start:start+self.b**(self.k-h)],1/(self.b**self.k),align='edge')
         plt.show()
-
+        
         
     def animate(self, frames):
         fig, ax = plt.subplots()
