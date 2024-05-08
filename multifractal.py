@@ -64,7 +64,6 @@ class Multifractal():
             for i in range(1,len(address)+1):
                 x += self.b**(-i) * int(address[i-1]) 
             start = np.where(self.support == x)[0][0]
-            print(start)
             return start
         else: 
             raise ValueError("Not enough iterations")
@@ -77,11 +76,11 @@ class Multifractal():
         if (start + 1) == len(self.support):
             end = self.support_endpoints[1]
         else:
-            end = self.support[start+1]
-        print(end,self.b**self.k,self.mu[start:])
-        plot = ax.bar(np.linspace(self.support[start],end,self.b**(self.k-h)),self.mu[start:],1/(self.b**self.k),align='edge')
+            end = self.support[start+self.b**(self.k-h)]
+        print(self.b**(self.k-h))
+        plot = ax.bar(np.linspace(self.support[start],end,self.b**(self.k-h),endpoint=False),self.mu[start:start+self.b**(self.k-h)],1/(self.b**self.k),align='edge')
         plt.show()
-        
+
         
     def animate(self, frames):
         fig, ax = plt.subplots()
