@@ -143,9 +143,40 @@ class Multifractal():
         return density
 
 
-
-
-binom = Multifractal(3, [0.5,0.3,0.2], [0,1], 1)
-
-
-binom.animate(8,"binomial.gif")
+    def binary_converter(self, n): 
+        return bin(n).replace("0b", "") 
+    
+    
+    def histogram_method_alphas(self):
+        alphas = []
+        for i in range(0,self.k):
+            size = self.eps*self.b**i
+            address = np.linspace(self.support_endpoints[0],self.support_endpoints[1],int(1/size),endpoint=False)
+            N = len(address)
+            alpha = []
+            for i in range(N):
+                x = self.binary_converter(i)
+                if len(x) < math.log(N,2):
+                    x = (int(math.log(N,2)) - len(x)) * '0' + x
+                alpha.append(self.coarse_alpha(x))
+            alphas.append(alpha)
+        return alphas[0]
+    
+    
+    def histogram_method_alpha_distribution(self):
+        alphas = self.histogram_method_alphas()
+        plt.hist(alphas,bins=self.k)
+        
+        
+    def histogram_method_spectrum(self):
+        alphas = self.histogram_method_alphas()
+        
+        bins = np.histogram(alphas,bins=self.k)
+        
+        N = bins[0]
+        return (- np.log(N) / math.log(self.eps),bins[1])
+    
+    
+    def histogram_method_spectrum_plot(self):
+        y,x = self.histogram_method_spectrum()
+        plt.plot(x[:-1],y)
