@@ -141,3 +141,11 @@ class Multifractal():
         x = self.convert_address(address)
         density = self.mu[x] / self.eps
         return density
+
+
+
+
+binom = Multifractal(3, [0.5,0.3,0.2], [0,1], 1)
+
+
+binom.animate(8,"binomial.gif")
