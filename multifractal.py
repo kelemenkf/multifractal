@@ -180,3 +180,10 @@ class Multifractal():
     def histogram_method_spectrum_plot(self):
         y,x = self.histogram_method_spectrum()
         plt.plot(x[:-1],y)
+
+
+    def partition_function(self,q):
+        '''
+        Partition function for q-th moment, at the current level of coarse graining epsilon. 
+        '''
+        return np.sum(self.mu**q)
