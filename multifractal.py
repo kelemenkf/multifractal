@@ -88,11 +88,11 @@ class Multifractal():
             x = 0
             for i in range(1,len(address)+1):
                 x += self.b**(-i) * int(address[i-1]) 
-            start = np.where(self.support == x)[0][0]
+            start = np.nonzero(np.isclose(self.support,x))
             return start
         else: 
             raise ValueError("Not enough iterations")
-    
+        
     
     def plot_interval(self,address):
         '''
