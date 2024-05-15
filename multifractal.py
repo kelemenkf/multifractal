@@ -296,6 +296,16 @@ class Multifractal():
         plt.plot(x[:-1],y)
 
 
+    def cdf(self):
+        return np.cumsum(self.mu)
+    
+    
+    def plot_cdf(self):
+        cdf = self.cdf()
+        
+        fig, ax = plt.subplots()
+        plot = ax.bar(np.linspace(0,1,self.b**self.k,endpoint=False),cdf,1/self.b**self.k,align='edge')
+
     def partition_function(self,q):
         '''
         Partition function for q-th moment, at the current level of coarse graining epsilon. 
