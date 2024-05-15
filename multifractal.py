@@ -89,7 +89,8 @@ class Multifractal():
         while len(result) < M.size:
             M0 = self.draw_multiplier(M, P)
             result.append(M0)
-            P = self.update_P(M0,P,M)
+            if len(result) < M.size:
+                P = self.update_P(M0,P,M)
         return result
     
     
@@ -98,6 +99,8 @@ class Multifractal():
         Returns an array of multipliers where each is drawn randomly according to P,
         and keeps E[sum(M)] == 1. This is the canonical construction. 
         '''
+        if np.dot(self.M,self.P)*self.b != 1:
+            raise ValueError("E[ΣM] not equal to 1")
         M = np.random.choice(self.M,size=self.b,p=self.P)
         return M
     
