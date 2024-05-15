@@ -76,7 +76,7 @@ class Multifractal():
         Plots the multifractal on the whole set supporting it
         '''
         fig, ax = plt.subplots()
-        plot = ax.bar(np.linspace(0,1-(1/self.b**self.k),self.b**self.k),self.mu,1/(self.b**self.k),align='edge')
+        plot = ax.bar(np.linspace(0,1-(1/self.b**self.k),self.b**self.k),self.mu/self.eps,1/(self.b**self.k),align='edge')
         plt.show()
             
     
@@ -117,9 +117,9 @@ class Multifractal():
         def update(frame):
             for i, bar in enumerate(bars):
                 n = int(i // (self.b**frames / self.b**self.k))
-                bar.set_height(self.mu[n])
+                bar.set_height(self.mu[n]/self.eps)
                 
-            ax.set_ylim([0,max(self.mu)+0.1*max(self.mu)])
+            ax.set_ylim([0,max(self.mu/self.eps)+0.1*max(self.mu/self.eps)])
             self.iterate(1)
 
             return bars
