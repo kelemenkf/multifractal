@@ -102,14 +102,29 @@ class Multifractal():
         return M
     
     
-    def multiply_measure(self, M):
+    def multiply_measure(self, M, interval):
         '''
-        Helper function for multiplying  the measures with M. 
+        Helper function for multiplying the measures with M. 
         '''
         temp = []
         for i in M:
-            for j in self.mu:
+            for j in interval:
                 temp.append(i*j)
+        return temp
+    
+    def multiply_measure_random(self, r_type):
+        '''
+        Multiplies the measure in each cell of interval with a random set of multipliers, 
+        depending on r_type. 'Cons' is conservative, 'canon' is canonical. 
+        '''
+        temp = []
+        for i in range(0,len(self.mu),2):
+            interval = self.mu[i:i+2]
+            if r_type == 'cons':
+                M = self.conservative()
+            elif r_type == 'canon':
+                M = self.canonical()
+            temp += self.multiply_measure(M, interval)
         return temp
         
     
@@ -120,15 +135,10 @@ class Multifractal():
         while k > 0:
             self.set_eps()
             self.set_support()
-            temp = []
-            if self.P.size > 0 and self.r_type == 'cons':
-                M = self.conservative()
-                temp = self.multiply_measure(M)
-            elif self.P.size > 0 and self.r_type == 'canon':
-                M = self.canonical()
-                temp = self.multiply_measure(M)
+            if self.P.size > 0:
+                temp = self.multiply_measure_random(self.r_type)
             else:
-                temp = self.multiply_measure(self.M)
+                temp = self.multiply_measure(self.M, self.mu)
             self.mu = np.array(temp)
             k -= 1
         if k <= 10:
