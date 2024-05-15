@@ -99,7 +99,7 @@ class Multifractal():
         Returns an array of multipliers where each is drawn randomly according to P,
         and keeps E[sum(M)] == 1. This is the canonical construction. 
         '''
-        if np.dot(self.M,self.P)*self.b != 1:
+        if not math.isclose(np.dot(self.M,self.P)*self.b, 1, rel_tol=1e-06):
             raise ValueError("E[ΣM] not equal to 1")
         M = np.random.choice(self.M,size=self.b,p=self.P)
         return M
@@ -131,7 +131,7 @@ class Multifractal():
         return temp
         
     
-    def iterate(self, k):
+    def iterate(self, k, plot=True):
         '''
         Does k iterations of the cascade, then Plots the resulting measure. 
         '''
@@ -144,7 +144,7 @@ class Multifractal():
                 temp = self.multiply_measure(self.M, self.mu)
             self.mu = np.array(temp)
             k -= 1
-        if k <= 10:
+        if k <= 10 and plot == True:
             self.plot_density()
         
         
@@ -306,8 +306,41 @@ class Multifractal():
         fig, ax = plt.subplots()
         plot = ax.bar(np.linspace(0,1,self.b**self.k,endpoint=False),cdf,1/self.b**self.k,align='edge')
 
-    def partition_function(self,q):
+
+    def partition_helper(self,q):
         '''
         Partition function for q-th moment, at the current level of coarse graining epsilon. 
         '''
         return np.sum(self.mu**q)
+    
+
+    def partition_function(self, k, q=5, plot=False):
+        '''
+        Calculate the partition function for an increasingly coarse-grained interval of size
+        eps. q determines the maximum of moments (only integer), and k the number of iterations
+        beyond the trivial first one. 
+        '''
+        data = np.ones((q,1))
+        while k > 0:
+            moments = []
+            for q in range(1,q+1):
+                chi = self.partition_helper(q)
+                moments.append(chi)
+            moments = np.array(moments)
+            data = np.append(data, moments[:,np.newaxis], axis=1)
+            self.iterate(1,plot=False)
+            k -= 1
+        return data
+                
+        
+    def partition_plot(self, k, q):
+        '''
+        Plots the partition function for moments up until q (integers only) and for k iterations
+        (trivial first one left out). 
+        '''
+        data = self.partition_function(k, q, plot=False)
+        x = [self.eps * self.b**i for i in range(0,k)]
+        print(x)
+        for i in range(k):
+            plt.plot(np.log(x), np.log(data[i,1:]), label=[f"{i+1} moment"])
+        plt.legend()
