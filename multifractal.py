@@ -132,7 +132,7 @@ class Multifractal():
             self.mu = np.array(temp)
             k -= 1
         if k <= 10:
-            self.plot_measure()
+            self.plot_density()
         
         
     def check_measure(self):
@@ -142,9 +142,9 @@ class Multifractal():
         return self.mu.sum()
     
     
-    def plot_measure(self):
+    def plot_density(self):
         '''
-        Plots the multifractal on the whole set supporting it
+        Plots the density function of the measure. 
         '''
         fig, ax = plt.subplots()
         plot = ax.bar(np.linspace(0,1,self.b**self.k,endpoint=False),self.mu/self.eps,1/(self.b**self.k),align='edge')
