@@ -15,7 +15,7 @@ class Multifractal():
     Plotting is only supported with E=1. The values of the measure is stored in mu, 
     and k denotes the number of iterations for the cascade for a given measure. 
     '''
-    def __init__(self, b, M, support_endpoints, E, k=0, mu=[1]):
+    def __init__(self, b, M, support_endpoints, E=1, k=0, mu=[1], P=[], r_type=""):
         self.b = b
         if sum(M) == 1:
             self.M = np.array(M, dtype='f')
@@ -27,6 +27,8 @@ class Multifractal():
         self.eps = self.b**(-self.k)
         self.support_endpoints = support_endpoints
         self.support = np.linspace(support_endpoints[0],support_endpoints[1],self.b**self.k,endpoint=False)
+        self.P = np.array(P)
+        self.r_type = r_type
     
     
     def __str__(self):
@@ -47,6 +49,45 @@ class Multifractal():
         '''
         self.support = np.linspace(self.support_endpoints[0],self.support_endpoints[1],self.b**self.k,endpoint=False)
     
+
+    def get_measure(self):
+        return self.mu
+    
+
+    def update_P(self, M0, P, M):
+        p_index = np.where(M == M0)[0][0]
+        P *= 1/(1-self.P[p_index])
+        P[p_index] = 0
+        return P
+        
+        
+    def draw_measure(self, M, P):
+        return np.random.choice(M,size=1,p=P)[0]
+    
+    
+    def conservative(self):
+        P = np.copy(self.P)
+        M = np.copy(self.M)
+        result = []
+        while len(result) < M.size:
+            M0 = self.draw_measure(M, P)
+            result.append(M0)
+            P = self.update_P(M0,P,M)
+        return result
+    
+    
+    def canonical(self):
+        M = np.random.choice(self.M,size=self.b,p=self.P)
+        return M
+    
+    
+    def multiply_measure(self, M):
+        temp = []
+        for i in M:
+            for j in self.mu:
+                temp.append(i*j)
+        return temp
+        
     
     def iterate(self, k):
         '''
@@ -56,12 +97,18 @@ class Multifractal():
             self.set_eps()
             self.set_support()
             temp = []
-            for i in self.M:
-                for j in self.mu:
-                    temp.append(i*j)
+            if self.P.size > 0 and self.r_type == 'cons':
+                M = self.conservative()
+                temp = self.multiply_measure(M)
+            elif self.P.size > 0 and self.r_type == 'canon':
+                M = self.canonical()
+                temp = self.multiply_measure(M)
+            else:
+                temp = self.multiply_measure(self.M)
             self.mu = np.array(temp)
             k -= 1
-        self.plot_measure()
+        if k <= 10:
+            self.plot_measure()
         
         
     def check_measure(self):
@@ -76,7 +123,7 @@ class Multifractal():
         Plots the multifractal on the whole set supporting it
         '''
         fig, ax = plt.subplots()
-        plot = ax.bar(np.linspace(0,1-(1/self.b**self.k),self.b**self.k),self.mu/self.eps,1/(self.b**self.k),align='edge')
+        plot = ax.bar(np.linspace(0,1,self.b**self.k,endpoint=False),self.mu/self.eps,1/(self.b**self.k),align='edge')
         plt.show()
             
     
@@ -143,11 +190,18 @@ class Multifractal():
         return density
 
 
-    def binary_converter(self, n): 
-        return bin(n).replace("0b", "") 
+    def baseb(self, n, b):
+        e = n//b
+        q = n%b
+        if n == 0:
+            return '0'
+        elif e == 0:
+            return str(q)
+        else:
+            return self.baseb(e, b) + str(q)
     
     
-    def histogram_method_alphas(self):
+    def get_alphas(self):
         alphas = []
         for i in range(0,self.k):
             size = self.eps*self.b**i
@@ -155,21 +209,23 @@ class Multifractal():
             N = len(address)
             alpha = []
             for i in range(N):
-                x = self.binary_converter(i)
-                if len(x) < math.log(N,2):
-                    x = (int(math.log(N,2)) - len(x)) * '0' + x
+                x = self.baseb(i,self.b)
+                if len(x) < math.log(N,self.b):
+                    x = (int(math.log(N,self.b)) - len(x)) * '0' + x
                 alpha.append(self.coarse_alpha(x))
             alphas.append(alpha)
         return alphas[0]
     
     
     def histogram_method_alpha_distribution(self):
-        alphas = self.histogram_method_alphas()
+        alphas = self.get_alphas()
+        plt.xlabel("Coarse Hölder exponent (alpha)")
+        plt.ylabel("Frequency")
         plt.hist(alphas,bins=self.k)
         
         
     def histogram_method_spectrum(self):
-        alphas = self.histogram_method_alphas()
+        alphas = self.get_alphas()
         
         bins = np.histogram(alphas,bins=self.k)
         
