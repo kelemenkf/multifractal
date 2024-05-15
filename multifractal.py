@@ -51,37 +51,61 @@ class Multifractal():
     
 
     def get_measure(self):
+        '''
+        Return measure values for all box of size self.eps.
+        '''
         return self.mu
     
 
     def update_P(self, M0, P, M):
+        '''
+        Update the array containing probabilities for the conservative construction.
+        The relative probabilites are kept and rescaled so they always sum to 1.
+        If say we have P = [0.5,0.3,0.2] and the random draw chooses 0.3, the next P will be 
+        P = [0.71, 0, 0.28]. This keeps the ratio 0.5/0.2 = 0.71/0.28.
+        '''
         p_index = np.where(M == M0)[0][0]
         P *= 1/(1-self.P[p_index])
         P[p_index] = 0
+        assert np.isclose(np.sum(P),1)
         return P
         
         
-    def draw_measure(self, M, P):
+    def draw_multiplier(self, M, P):
+        '''
+        Draws a single multiplier from a multinomial distribution with probabilities P. 
+        '''
         return np.random.choice(M,size=1,p=P)[0]
     
-    
+
     def conservative(self):
+        '''
+        Returns an array of multipliers where each one is drawn randomly according to P, 
+        and keeps sum(M) == 1. This is the conservative construction. 
+        '''
         P = np.copy(self.P)
         M = np.copy(self.M)
         result = []
         while len(result) < M.size:
-            M0 = self.draw_measure(M, P)
+            M0 = self.draw_multiplier(M, P)
             result.append(M0)
             P = self.update_P(M0,P,M)
         return result
     
     
     def canonical(self):
+        '''
+        Returns an array of multipliers where each is drawn randomly according to P,
+        and keeps E[sum(M)] == 1. This is the canonical construction. 
+        '''
         M = np.random.choice(self.M,size=self.b,p=self.P)
         return M
     
     
     def multiply_measure(self, M):
+        '''
+        Helper function for multiplying  the measures with M. 
+        '''
         temp = []
         for i in M:
             for j in self.mu:
@@ -179,18 +203,27 @@ class Multifractal():
 
         
     def coarse_alpha(self, address):
+        '''
+        Calculate the coarse Hölder exponent at a given interval.
+        '''
         x = self.convert_address(address)
         alpha = math.log(self.mu[x]) / math.log(self.eps)
         return alpha
     
     
     def coarse_density(self, address):
+        '''
+        Calculate the coarse density at a given interval.
+        '''
         x = self.convert_address(address)
         density = self.mu[x] / self.eps
         return density
 
 
     def baseb(self, n, b):
+        '''
+        Convert n in decimal to n in b.
+        '''
         e = n//b
         q = n%b
         if n == 0:
@@ -202,6 +235,9 @@ class Multifractal():
     
     
     def get_alphas(self):
+        '''
+        Return an array of alpha exponents at the last stage of the iteration. 
+        '''
         alphas = []
         for i in range(0,self.k):
             size = self.eps*self.b**i
@@ -218,6 +254,9 @@ class Multifractal():
     
     
     def histogram_method_alpha_distribution(self):
+        '''
+        Plot the frequency distribution of alphas at the last stage of the iteration. 
+        '''
         alphas = self.get_alphas()
         plt.xlabel("Coarse Hölder exponent (alpha)")
         plt.ylabel("Frequency")
@@ -225,6 +264,9 @@ class Multifractal():
         
         
     def histogram_method_spectrum(self):
+        '''
+        Calculate the values of the multifractal spectrum of the measure. 
+        '''
         alphas = self.get_alphas()
         
         bins = np.histogram(alphas,bins=self.k)
@@ -234,6 +276,9 @@ class Multifractal():
     
     
     def histogram_method_spectrum_plot(self):
+        '''
+        Plot the multifractal spectrum of the measure. 
+        '''
         y,x = self.histogram_method_spectrum()
         plt.plot(x[:-1],y)
 
