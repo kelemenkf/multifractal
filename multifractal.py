@@ -65,7 +65,7 @@ class Multifractal():
         P = [0.71, 0, 0.28]. This keeps the ratio 0.5/0.2 = 0.71/0.28.
         '''
         p_index = np.where(M == M0)[0][0]
-        P *= 1/(1-self.P[p_index])
+        P *= 1/(1-P[p_index])
         P[p_index] = 0
         assert np.isclose(np.sum(P),1)
         return P
