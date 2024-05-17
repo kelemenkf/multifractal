@@ -361,7 +361,6 @@ class Multifractal():
 
 
     def get_slope(self, y, x):
-        plt.scatter(x, y)
         x = sm.add_constant(x)
         model = sm.OLS(y,x)
         results = model.fit()
@@ -371,7 +370,7 @@ class Multifractal():
     def calc_tau_q(self, k, q=5, gran=0.1):
         data, q_range = self.partition_function(k, q, gran)
         tau_q = {}
-        x = [self.eps * self.b**i for i in range(data.shape[1])]
+        x = [self.eps * self.b**i for i in range(1, data.shape[1]+1)]
         for i in range(data.shape[0]):
             tau = self.get_slope(np.log(data[i,:]),np.log(x))
             tau_q.update({q_range[i]:tau})
