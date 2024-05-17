@@ -324,7 +324,7 @@ class Multifractal():
         Partition function for q-th moment, at the current level of coarse graining epsilon. 
         '''
         return np.sum(self.mu**q)
-    
+       
 
     def partition_function(self, k, q=5, gran=0.1, plot=False):
         '''
@@ -332,7 +332,7 @@ class Multifractal():
         eps. q determines the highest moment calculated (only integer), and k the number of iterations
         beyond the trivial first one. 
         '''
-        q_range = np.linspace(0,q,int(q/gran),endpoint=False)
+        q_range = np.linspace(1,q,int(q/gran))
         data = np.ones((q_range.size,1))
         while k > 0:
             moments = []
@@ -343,7 +343,7 @@ class Multifractal():
             data = np.append(data, moments[:,np.newaxis], axis=1)
             self.iterate(1,plot=False)
             k -= 1
-        return (np.flip(data, axis=1), q_range)
+        return (np.flip(data[:,1:], axis=1), q_range)
                 
         
     def partition_plot(self, k, q=5, gran=0.1):
@@ -352,9 +352,9 @@ class Multifractal():
         (trivial first one left out). 
         '''
         data = self.partition_function(k, q=q, gran=gran, plot=False)[0]
-        x = [self.eps * self.b**i for i in range(0,k)]
+        x = [self.eps * self.b**i for i in range(1,k+1)]
         for i in range(data.shape[0]):
-            plt.plot(np.log(x), np.log(data[i,1:]), label=f"{i} moment")
+            plt.scatter(np.log(x), np.log(data[i,:]), label=f"{i+1} moment")
         plt.xlabel("log(eps)")
         plt.ylabel("log(S)")
         plt.legend()
