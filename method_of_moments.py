@@ -9,11 +9,12 @@ mpl.rcParams['figure.figsize'] = (20,10)
 from .multifractal import Multifractal
 
 class MethodOfMoments(Multifractal):
-    def __init__(self, b, M, support_endpoints, q=5, gran=0.1, analytic=False, E=1, k=0, mu=[1], P=[], r_type=""):
+    def __init__(self, b, M, support_endpoints, q=[-5,5], gran=0.1, analytic=False, E=1, k=0, mu=[1], P=[], r_type=""):
         super().__init__(b, M, support_endpoints, E, k, mu, P, r_type)
 
         self.q = q
         self.gran = gran
+        self.q_range = np.linspace(self.q[0],self.q[-1],int((self.q[1]-self.q[0])/self.gran))
         self.analytic = analytic
         self.data = self.partition_function()
         if not self.analytic:
@@ -36,19 +37,18 @@ class MethodOfMoments(Multifractal):
         eps. q determines the highest moment calculated (only integer), and k the number of iterations
         beyond the trivial first one. 
         '''
-        q_range = np.linspace(1,self.q,int(self.q/self.gran))
-        data = np.ones((q_range.size,1))
+        data = np.ones((self.q_range.size,1))
         k = self.k
         while k > 0:
             moments = []
-            for q in q_range:
+            for q in self.q_range:
                 chi = self.partition_helper(q)
                 moments.append(chi)
             moments = np.array(moments)
             data = np.append(data, moments[:,np.newaxis], axis=1)
             self.iterate(1,plot=plot)
             k -= 1
-        return (np.flip(data[:,1:], axis=1), q_range)
+        return np.flip(data[:,1:], axis=1)
                 
         
     def partition_plot(self):
@@ -56,9 +56,8 @@ class MethodOfMoments(Multifractal):
         Plots the partition function for moments up until q (integers only) and for k iterations
         (trivial first one left out). 
         '''
-        data = self.data[0]
+        data = self.data
         x = [self.eps * self.b**i for i in range(1,self.k-1)]
-        print(data, x)
         for i in range(data.shape[0]):
             plt.scatter(np.log(x), np.log(data[i,:]), label=f"{i+1} moment")
         plt.xlabel("log(eps)")
@@ -81,12 +80,11 @@ class MethodOfMoments(Multifractal):
         Calculates the moment scaling function - tau(q) - of the measure in a range given by self.q, 
         with granularity given by self.gran.
         '''
-        data, q_range = self.data
         tau_q = {}
-        x = [self.eps * self.b**i for i in range(1, data.shape[1]+1)]
-        for i in range(data.shape[0]):
-            tau = self.get_slope(np.log(data[i,:]),np.log(x))
-            tau_q.update({q_range[i]:tau})
+        x = [self.eps * self.b**i for i in range(1, self.data.shape[1]+1)]
+        for i in range(self.data.shape[0]):
+            tau = self.get_slope(np.log(self.data[i,:]),np.log(x))
+            tau_q.update({self.q_range[i]:tau})
         return tau_q
     
         
@@ -115,6 +113,7 @@ class MethodOfMoments(Multifractal):
         q = list(self.tau_q.keys())
         f_alpha = {}
         for i in range(len(alphas)):
+            print(alphas[i], q[i], tau[i])
             f = alphas[i] * q[i] - tau[i]
             f_alpha.update({alphas[i]:f})
         return f_alpha
@@ -127,9 +126,8 @@ class MethodOfMoments(Multifractal):
 
     
     def calc_tau_q_binomial(self):
-        q_range = np.linspace(0,self.q,int(self.q/self.gran),endpoint=False)
         tau_q = {}
-        for q in q_range:
+        for q in self.q_range:
             tau = -math.log(self.M[0]**q+self.M[1]**q,2)
             tau_q.update({q:tau})
         return tau_q
