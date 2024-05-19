@@ -13,6 +13,7 @@ class MethodOfMoments(Multifractal):
 
         self.q = q
         self.gran = gran
+        self.data = self.partition_function()
         self.tau_q = self.calc_tau_q()
         self.f_alpha = self.legendre()
 
@@ -50,8 +51,9 @@ class MethodOfMoments(Multifractal):
         Plots the partition function for moments up until q (integers only) and for k iterations
         (trivial first one left out). 
         '''
-        data = self.partition_function()[0]
-        x = [self.eps * self.b**i for i in range(1,k+1)]
+        data = self.data[0]
+        x = [self.eps * self.b**i for i in range(1,self.k-1)]
+        print(data, x)
         for i in range(data.shape[0]):
             plt.scatter(np.log(x), np.log(data[i,:]), label=f"{i+1} moment")
         plt.xlabel("log(eps)")
@@ -67,7 +69,7 @@ class MethodOfMoments(Multifractal):
         
         
     def calc_tau_q(self):
-        data, q_range = self.partition_function()
+        data, q_range = self.data
         tau_q = {}
         x = [self.eps * self.b**i for i in range(1, data.shape[1]+1)]
         for i in range(data.shape[0]):
