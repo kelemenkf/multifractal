@@ -98,6 +98,9 @@ class MethodOfMoments(Multifractal):
 
 
     def discrete_slopes(self):
+        '''
+        Calculates a discrete apporximation of the derivative of the tau(q) function. 
+        '''
         alphas = []
         tau = list(self.tau_q.values())
         q = list(self.tau_q.keys())
@@ -108,27 +111,38 @@ class MethodOfMoments(Multifractal):
     
     
     def legendre(self):
+        '''
+        Legendre transform the tau(q) function and returns the spectrum f(alpha).
+        '''
         alphas = self.discrete_slopes()
         tau = list(self.tau_q.values())
         q = list(self.tau_q.keys())
         f_alpha = {}
         for i in range(len(alphas)):
-            print(alphas[i], q[i], tau[i])
             f = alphas[i] * q[i] - tau[i]
             f_alpha.update({alphas[i]:f})
         return f_alpha
     
     
     def plot_f_alpha(self):
+        '''
+        Plots the estimated multifractal spectrum. 
+        '''
         plt.plot(list(self.f_alpha.keys()), list(self.f_alpha.values()))
         plt.xlabel('alpha')
         plt.ylabel('f(alpha)')
 
     
-    def calc_tau_q_binomial(self):
+    def calc_tau_q_multinomial(self):
+        '''
+        Calculates the tau(q) of a b-nomial meausre which has an exact formula. 
+        '''
         tau_q = {}
         for q in self.q_range:
-            tau = -math.log(self.M[0]**q+self.M[1]**q,2)
+            sigma = 0
+            for m in self.M:
+                sigma += m**q
+            tau = -math.log(sigma, self.b)
             tau_q.update({q:tau})
         return tau_q
 
