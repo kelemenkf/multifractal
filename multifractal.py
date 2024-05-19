@@ -319,17 +319,3 @@ class Multifractal():
         plot = ax.bar(np.linspace(0,1,self.b**self.k,endpoint=False),cdf,1/self.b**self.k,align='edge')
 
 
-    def calc_tau_q_binomial(self, q=5, gran=0.1):
-        q_range = np.linspace(0,q,int(q/gran),endpoint=False)
-        y = []
-        for q in q_range:
-            y.append(-math.log(self.M[0]**q+self.M[1]**q,2))
-        return (y, q_range)
-
-
-    def plot_tau_q_binomial(self, q=5, gran=0.1):
-        y, q_range = self.calc_tau_q_binomial(q,gran)
-        plt.plot(q_range,y)
-        plt.xlabel('q')
-        plt.ylabel('tau')
-        return y

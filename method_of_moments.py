@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -8,13 +9,17 @@ mpl.rcParams['figure.figsize'] = (20,10)
 from .multifractal import Multifractal
 
 class MethodOfMoments(Multifractal):
-    def __init__(self, b, M, support_endpoints, q=5, gran=0.1, E=1, k=0, mu=[1], P=[], r_type=""):
+    def __init__(self, b, M, support_endpoints, q=5, gran=0.1, analytic=False, E=1, k=0, mu=[1], P=[], r_type=""):
         super().__init__(b, M, support_endpoints, E, k, mu, P, r_type)
 
         self.q = q
         self.gran = gran
+        self.analytic = analytic
         self.data = self.partition_function()
-        self.tau_q = self.calc_tau_q()
+        if not self.analytic:
+            self.tau_q = self.calc_tau_q()
+        else: 
+            self.tau_q = self.calc_tau_q_binomial()
         self.f_alpha = self.legendre()
 
 
@@ -119,3 +124,13 @@ class MethodOfMoments(Multifractal):
         plt.plot(list(self.f_alpha.keys()), list(self.f_alpha.values()))
         plt.xlabel('alpha')
         plt.ylabel('f(alpha)')
+
+    
+    def calc_tau_q_binomial(self):
+        q_range = np.linspace(0,self.q,int(self.q/self.gran),endpoint=False)
+        tau_q = {}
+        for q in q_range:
+            tau = -math.log(self.M[0]**q+self.M[1]**q,2)
+            tau_q.update({q:tau})
+        return tau_q
+
