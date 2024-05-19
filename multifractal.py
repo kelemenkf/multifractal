@@ -392,3 +392,29 @@ class Multifractal():
         plt.plot(self.tau_q.keys(), self.tau_q.values())
         plt.xlabel('q')
         plt.ylabel('tau')
+
+
+    def discrete_slopes(self):
+        alphas = []
+        tau = list(self.tau_q.values())
+        q = list(self.tau_q.keys())
+        for i in range(1,len(self.tau_q)):
+            alpha = (tau[i] - tau[i-1]) / (q[i] - q[i-1])
+            alphas.append(alpha)
+        return alphas
+    
+    
+    def calc_f_alpha(self):
+        alphas = self.discrete_slopes()
+        tau = list(self.tau_q.values())
+        q = list(self.tau_q.keys())
+        f_alpha = []
+        for i in range(len(alphas)):
+            f = alphas[i] * q[i] - tau[i]
+            f_alpha.append(f)
+        return (f_alpha, alphas)
+    
+    
+    def plot_f_alpha(self):
+        f, alpha = self.calc_f_alpha()
+        plt.plot(alpha, f)
