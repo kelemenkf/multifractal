@@ -5,7 +5,7 @@ import statsmodels.api as sm
 
 mpl.rcParams['figure.figsize'] = (20,10)
 
-from multifractal import Multifractal
+from .multifractal import Multifractal
 
 class MethodOfMoments(Multifractal):
     def __init__(self, b, M, support_endpoints, q=5, gran=0.1, E=1, k=0, mu=[1], P=[], r_type=""):
@@ -62,6 +62,9 @@ class MethodOfMoments(Multifractal):
 
 
     def get_slope(self, y, x):
+        '''
+        Calculates slope of an ols regression of x on y. Constant is added. 
+        '''
         x = sm.add_constant(x)
         model = sm.OLS(y,x)
         results = model.fit()
@@ -69,6 +72,10 @@ class MethodOfMoments(Multifractal):
         
         
     def calc_tau_q(self):
+        '''
+        Calculates the moment scaling function - tau(q) - of the measure in a range given by self.q, 
+        with granularity given by self.gran.
+        '''
         data, q_range = self.data
         tau_q = {}
         x = [self.eps * self.b**i for i in range(1, data.shape[1]+1)]
@@ -79,6 +86,9 @@ class MethodOfMoments(Multifractal):
     
         
     def plot_tau_q(self):
+        '''
+        Plots the moment scaling function. 
+        '''
         plt.plot(self.tau_q.keys(), self.tau_q.values())
         plt.xlabel('q')
         plt.ylabel('tau')
