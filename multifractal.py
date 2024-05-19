@@ -30,7 +30,6 @@ class Multifractal():
         self.support = np.linspace(support_endpoints[0],support_endpoints[1],self.b**self.k,endpoint=False)
         self.P = np.array(P)
         self.r_type = r_type
-        self.tau_q = None
     
     
     def __str__(self):
@@ -300,6 +299,7 @@ class Multifractal():
         '''
         y,x = self.histogram_method_spectrum()
         plt.plot(x[:-1],y)
+        plt.xticks(x[:-1])
 
 
     def cdf(self):
@@ -319,102 +319,17 @@ class Multifractal():
         plot = ax.bar(np.linspace(0,1,self.b**self.k,endpoint=False),cdf,1/self.b**self.k,align='edge')
 
 
-    def partition_helper(self,q):
-        '''
-        Partition function for q-th moment, at the current level of coarse graining epsilon. 
-        '''
-        return np.sum(self.mu**q)
-       
-
-    def partition_function(self, k, q=5, gran=0.1, plot=False):
-        '''
-        Calculate the partition function for an increasingly coarse-grained interval of size
-        eps. q determines the highest moment calculated (only integer), and k the number of iterations
-        beyond the trivial first one. 
-        '''
-        q_range = np.linspace(1,q,int(q/gran))
-        data = np.ones((q_range.size,1))
-        while k > 0:
-            moments = []
-            for q in q_range:
-                chi = self.partition_helper(q)
-                moments.append(chi)
-            moments = np.array(moments)
-            data = np.append(data, moments[:,np.newaxis], axis=1)
-            self.iterate(1,plot=False)
-            k -= 1
-        return (np.flip(data[:,1:], axis=1), q_range)
-                
-        
-    def partition_plot(self, k, q=5, gran=0.1):
-        '''
-        Plots the partition function for moments up until q (integers only) and for k iterations
-        (trivial first one left out). 
-        '''
-        data = self.partition_function(k, q=q, gran=gran, plot=False)[0]
-        x = [self.eps * self.b**i for i in range(1,k+1)]
-        for i in range(data.shape[0]):
-            plt.scatter(np.log(x), np.log(data[i,:]), label=f"{i+1} moment")
-        plt.xlabel("log(eps)")
-        plt.ylabel("log(S)")
-        plt.legend()
-
-
-    def get_slope(self, y, x):
-        x = sm.add_constant(x)
-        model = sm.OLS(y,x)
-        results = model.fit()
-        return results.params[1]
-        
-        
-    def calc_tau_q(self, k, q=5, gran=0.1):
-        data, q_range = self.partition_function(k, q, gran)
-        tau_q = {}
-        x = [self.eps * self.b**i for i in range(1, data.shape[1]+1)]
-        for i in range(data.shape[0]):
-            tau = self.get_slope(np.log(data[i,:]),np.log(x))
-            tau_q.update({q_range[i]:tau})
-        self.tau_q = tau_q
-    
-    
-    def plot_tau_q_binomial(self, q=5, gran=0.1):
+    def calc_tau_q_binomial(self, q=5, gran=0.1):
         q_range = np.linspace(0,q,int(q/gran),endpoint=False)
         y = []
         for q in q_range:
             y.append(-math.log(self.M[0]**q+self.M[1]**q,2))
+        return (y, q_range)
+
+
+    def plot_tau_q_binomial(self, q=5, gran=0.1):
+        y, q_range = self.calc_tau_q_binomial(q,gran)
         plt.plot(q_range,y)
         plt.xlabel('q')
         plt.ylabel('tau')
         return y
-        
-        
-    def plot_tau_q(self):
-        plt.plot(self.tau_q.keys(), self.tau_q.values())
-        plt.xlabel('q')
-        plt.ylabel('tau')
-
-
-    def discrete_slopes(self):
-        alphas = []
-        tau = list(self.tau_q.values())
-        q = list(self.tau_q.keys())
-        for i in range(1,len(self.tau_q)):
-            alpha = (tau[i] - tau[i-1]) / (q[i] - q[i-1])
-            alphas.append(alpha)
-        return alphas
-    
-    
-    def calc_f_alpha(self):
-        alphas = self.discrete_slopes()
-        tau = list(self.tau_q.values())
-        q = list(self.tau_q.keys())
-        f_alpha = []
-        for i in range(len(alphas)):
-            f = alphas[i] * q[i] - tau[i]
-            f_alpha.append(f)
-        return (f_alpha, alphas)
-    
-    
-    def plot_f_alpha(self):
-        f, alpha = self.calc_f_alpha()
-        plt.plot(alpha, f)
