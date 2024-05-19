@@ -20,7 +20,7 @@ class MethodOfMoments(Multifractal):
         if not self.analytic:
             self.tau_q = self.calc_tau_q()
         else: 
-            self.tau_q = self.calc_tau_q_binomial()
+            self.tau_q = self.calc_tau_q_multinomial()
         self.f_alpha = self.legendre()
 
 
