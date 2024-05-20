@@ -9,14 +9,14 @@ mpl.rcParams['figure.figsize'] = (20,10)
 from .multifractal import Multifractal
 
 class MethodOfMoments(Multifractal):
-    def __init__(self, b, M, support_endpoints, q=[-5,5], gran=0.1, analytic=False, data=False, delta_t=False, E=1, k=0, mu=[1], P=[], r_type=""):
+    def __init__(self, b, M, support_endpoints, q=[-5,5], gran=0.1, analytic=False, X=False, delta_t=False, E=1, k=0, mu=[1], P=[], r_type=""):
         super().__init__(b, M, support_endpoints, E, k, mu, P, r_type)
 
         self.q = q
         self.gran = gran 
         self.q_range = np.linspace(self.q[0],self.q[-1],int((self.q[1]-self.q[0])/self.gran))
         self.analytic = analytic
-        self.data = data
+        self.X = X
         self.delta_t = delta_t
         self.data = self.partition_function()
         if not self.analytic:
@@ -45,7 +45,7 @@ class MethodOfMoments(Multifractal):
         beyond the trivial first one. 
         '''
         data = np.ones((self.q_range.size,1))
-        if self.data:
+        if self.X:
             for t in range(len(self.delta_t)):
                 data = np.append(self.partition_helper(data), moments[:,np.newaxis], axis=1)
         else:
