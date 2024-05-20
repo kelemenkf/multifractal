@@ -9,13 +9,15 @@ mpl.rcParams['figure.figsize'] = (20,10)
 from .multifractal import Multifractal
 
 class MethodOfMoments(Multifractal):
-    def __init__(self, b, M, support_endpoints, q=[-5,5], gran=0.1, analytic=False, E=1, k=0, mu=[1], P=[], r_type=""):
+    def __init__(self, b, M, support_endpoints, q=[-5,5], gran=0.1, analytic=False, data=False, delta_t=False, E=1, k=0, mu=[1], P=[], r_type=""):
         super().__init__(b, M, support_endpoints, E, k, mu, P, r_type)
 
         self.q = q
-        self.gran = gran
+        self.gran = gran 
         self.q_range = np.linspace(self.q[0],self.q[-1],int((self.q[1]-self.q[0])/self.gran))
         self.analytic = analytic
+        self.data = data
+        self.delta_t = delta_t
         self.data = self.partition_function()
         if not self.analytic:
             self.tau_q = self.calc_tau_q()
@@ -24,11 +26,16 @@ class MethodOfMoments(Multifractal):
         self.f_alpha = self.legendre()
 
 
-    def partition_helper(self, q):
+    def partition_helper(self, X):
         '''
         Partition function for q-th moment, at the current level of coarse graining epsilon. 
         '''
-        return np.sum(self.mu**q)
+        moments = []
+        for q in self.q_range:
+            chi = np.sum(X**q)
+            moments.append(chi)
+        moments = np.array(moments)
+        return moments
        
 
     def partition_function(self, plot=False):
@@ -38,16 +45,16 @@ class MethodOfMoments(Multifractal):
         beyond the trivial first one. 
         '''
         data = np.ones((self.q_range.size,1))
-        k = self.k
-        while k > 0:
-            moments = []
-            for q in self.q_range:
-                chi = self.partition_helper(q)
-                moments.append(chi)
-            moments = np.array(moments)
-            data = np.append(data, moments[:,np.newaxis], axis=1)
-            self.iterate(1,plot=plot)
-            k -= 1
+        if self.data:
+            for t in range(len(self.delta_t)):
+                data = np.append(self.partition_helper(data), moments[:,np.newaxis], axis=1)
+        else:
+            k = self.k
+            while k > 0:
+                moments = self.partition_helper(self.mu)
+                data = np.append(data, moments[:,np.newaxis], axis=1)
+                self.iterate(1,plot=plot)
+                k -= 1
         return np.flip(data[:,1:], axis=1)
                 
         
@@ -59,7 +66,7 @@ class MethodOfMoments(Multifractal):
         data = self.data
         x = [self.eps * self.b**i for i in range(1,self.k-1)]
         for i in range(data.shape[0]):
-            plt.scatter(np.log(x), np.log(data[i,:]), label=f"{i+1} moment")
+            plt.plot(np.log(x), np.log(data[i,:]), label=f"{i+1} moment")
         plt.xlabel("log(eps)")
         plt.ylabel("log(S)")
         plt.legend()
