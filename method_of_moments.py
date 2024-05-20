@@ -9,7 +9,7 @@ mpl.rcParams['figure.figsize'] = (20,10)
 from .multifractal import Multifractal
 
 class MethodOfMoments(Multifractal):
-    def __init__(self, b, M, support_endpoints, q=[-5,5], gran=0.1, analytic=False, X=False, delta_t=False, E=1, k=0, mu=[1], P=[], r_type=""):
+    def __init__(self, b, M, support_endpoints, q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, mu=[1], P=[], r_type=""):
         super().__init__(b, M, support_endpoints, E, k, mu, P, r_type)
 
         self.q = q
@@ -45,9 +45,10 @@ class MethodOfMoments(Multifractal):
         beyond the trivial first one. 
         '''
         data = np.ones((self.q_range.size,1))
-        if self.X:
+        if self.X.size > 0:
             for t in range(len(self.delta_t)):
-                data = np.append(self.partition_helper(data), moments[:,np.newaxis], axis=1)
+                moments = self.partition_helper(self.X[t])
+                data = np.append(data, moments[:,np.newaxis], axis=1)
         else:
             k = self.k
             while k > 0:
@@ -64,9 +65,12 @@ class MethodOfMoments(Multifractal):
         (trivial first one left out). 
         '''
         data = self.data
-        x = [self.eps * self.b**i for i in range(1,self.k-1)]
-        for i in range(data.shape[0]):
-            plt.plot(np.log(x), np.log(data[i,:]), label=f"{i+1} moment")
+        if self.delta_t.size == 0:
+            x = np.log([self.eps * self.b**i for i in range(1,self.k-1)])
+        else:
+            x = self.delta_t
+        for i in range(len(self.q_range)):
+            plt.plot(np.log(x), np.log(data[i,:]), label=f"{i} moment")
         plt.xlabel("log(eps)")
         plt.ylabel("log(S)")
         plt.legend()
@@ -88,6 +92,10 @@ class MethodOfMoments(Multifractal):
         with granularity given by self.gran.
         '''
         tau_q = {}
+        if self.delta_t.size == 0:
+            x = np.log([self.eps * self.b**i for i in range(1,self.k-1)])
+        else:
+            x = self.delta_t
         x = [self.eps * self.b**i for i in range(1, self.data.shape[1]+1)]
         for i in range(self.data.shape[0]):
             tau = self.get_slope(np.log(self.data[i,:]),np.log(x))
