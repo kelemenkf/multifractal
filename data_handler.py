@@ -53,4 +53,16 @@ class DataHandler():
         return eps
 
 
+    def calc_x(self, data, colname='logprice'):
+        X = []
+        for e in self.eps:
+            row = []
+            for i in range(e,len(data),e):
+                row.append(abs(data.iloc[i]['logprice'] - data.iloc[i-e]['logprice']))
+            X.append(row)
+
+        X = np.array(X, dtype=object)
+        X = np.flip(X)
     
+        return X
+        
