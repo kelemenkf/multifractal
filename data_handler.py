@@ -7,6 +7,7 @@ class DataHandler():
     def __init__(self, data, delta_t=1.1, max_eps=183):
         self.data = data
         self.get_logprice()
+        self.get_logreturns()
         self.delta_t = delta_t
         self.max_eps = max_eps
         self.drange = self.get_drange()
@@ -20,10 +21,18 @@ class DataHandler():
 
     def get_drange(self):
         return max(self.data.index) - min(self.data.index)
+
+
+    def get_df(self):
+        return self.data
     
 
     def get_logprice(self, colname='Close'):
         self.data['logprice'] = self.data[colname].apply(lambda x: math.log(x))
+
+
+    def get_logreturns(self, colname='logprice'):
+        self.data['logreturn'] = self.data[colname].apply(lambda x: x - self.data.iloc[0][colname])
 
 
     def round_days(self, timedelta):
@@ -41,8 +50,8 @@ class DataHandler():
         eps = [drange]
 
         while drange > datetime.timedelta(1):
-            eps.append(drange/1.1)
-            drange /= 1.1
+            eps.append(drange/self.delta_t)
+            drange /= self.delta_t
 
         for e in range(len(eps)):
             eps[e] = self.round_days(eps[e])
@@ -54,7 +63,7 @@ class DataHandler():
         return eps
 
 
-    def calc_x(self, colname='logprice'):
+    def calc_x(self, colname='logreturn'):
         X = []
         for e in self.eps:
             row = []
@@ -63,7 +72,7 @@ class DataHandler():
             X.append(row)
 
         X = np.array(X, dtype=object)
-        X = np.flip(X)
     
         return X
+    
         

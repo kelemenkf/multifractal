@@ -50,6 +50,7 @@ class MethodOfMoments(Multifractal):
             for t in range(len(self.delta_t)):
                 moments = self.partition_helper(self.X[t])
                 data = np.append(data, moments[:,np.newaxis], axis=1)
+            #First column is excluded because in this context it corresponds to nothing. 
             return data[:,1:]
         else:
             k = self.iter
@@ -85,6 +86,7 @@ class MethodOfMoments(Multifractal):
         x = sm.add_constant(x)
         model = sm.OLS(y,x)
         results = model.fit()
+        print(results.summary())
         return results.params[1]
         
         
