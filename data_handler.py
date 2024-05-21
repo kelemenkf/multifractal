@@ -1,15 +1,6 @@
 import math
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-import statsmodels.api as sm
-from matplotlib.patches import Rectangle
 import datetime
-import sys
-
-
-from .multifractal import Multifractal
 
 
 class DataHandler():
@@ -19,13 +10,18 @@ class DataHandler():
         self.max_eps = max_eps
         self.drange = self.get_drange()
         self.eps = self.get_eps()
+        self.X = self.calc_x()
+
+
+    def get_data(self):
+        return self.X, self.eps
 
 
     def get_drange(self):
         return max(self.data.index) - min(self.data.index)
     
 
-    def round_days(timedelta):
+    def round_days(self, timedelta):
         total_seconds = timedelta.total_seconds()
         
         s = 86400
@@ -53,12 +49,12 @@ class DataHandler():
         return eps
 
 
-    def calc_x(self, data, colname='logprice'):
+    def calc_x(self, colname='logprice'):
         X = []
         for e in self.eps:
             row = []
-            for i in range(e,len(data),e):
-                row.append(abs(data.iloc[i]['logprice'] - data.iloc[i-e]['logprice']))
+            for i in range(e,len(self.data),e):
+                row.append(abs(self.data.iloc[i][colname] - self.data.iloc[i-e][colname]))
             X.append(row)
 
         X = np.array(X, dtype=object)
