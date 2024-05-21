@@ -14,7 +14,7 @@ class MethodOfMoments(Multifractal):
 
         self.q = q
         self.gran = gran 
-        self.q_range = np.linspace(self.q[0],self.q[-1],int((self.q[1]-self.q[0])/self.gran))
+        self.q_range = np.linspace(self.q[0],self.q[-1],int((self.q[1]-self.q[0])/self.gran)+1)
         self.analytic = analytic
         self.X = X
         self.delta_t = delta_t
@@ -69,8 +69,10 @@ class MethodOfMoments(Multifractal):
             x = np.log([self.eps * self.b**i for i in range(1,self.k-1)])
         else:
             x = self.delta_t
+        print(self.q_range)
         for i in range(len(self.q_range)):
-            plt.plot(np.log(x), np.log(data[i,:]), label=f"{i} moment")
+            # print(data[i,:], np.log(data[i,:]), x, np.log(x))
+            plt.plot(np.log(x), np.log(data[i,:]), label=f"{self.q_range[i]} moment")
         plt.xlabel("log(eps)")
         plt.ylabel("log(S)")
         plt.legend()

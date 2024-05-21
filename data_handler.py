@@ -6,6 +6,7 @@ import datetime
 class DataHandler():
     def __init__(self, data, delta_t=1.1, max_eps=183):
         self.data = data
+        self.get_logprice()
         self.delta_t = delta_t
         self.max_eps = max_eps
         self.drange = self.get_drange()
@@ -20,6 +21,10 @@ class DataHandler():
     def get_drange(self):
         return max(self.data.index) - min(self.data.index)
     
+
+    def get_logprice(self, colname='Close'):
+        self.data['logprice'] = self.data[colname].apply(lambda x: math.log(x))
+
 
     def round_days(self, timedelta):
         total_seconds = timedelta.total_seconds()
