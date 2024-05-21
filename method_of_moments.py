@@ -9,12 +9,13 @@ mpl.rcParams['figure.figsize'] = (20,10)
 from .multifractal import Multifractal
 
 class MethodOfMoments(Multifractal):
-    def __init__(self, b, M, support_endpoints, q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, mu=[1], P=[], r_type=""):
+    def __init__(self, b, M, support_endpoints, q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, iter=0, mu=[1], P=[], r_type=""):
         super().__init__(b, M, support_endpoints, E, k, mu, P, r_type)
 
         self.q = q
         self.gran = gran 
         self.q_range = np.linspace(self.q[0],self.q[-1],int((self.q[1]-self.q[0])/self.gran)+1)
+        self.iter = iter
         self.analytic = analytic
         self.X = X
         self.delta_t = delta_t
@@ -49,14 +50,15 @@ class MethodOfMoments(Multifractal):
             for t in range(len(self.delta_t)):
                 moments = self.partition_helper(self.X[t])
                 data = np.append(data, moments[:,np.newaxis], axis=1)
+            return data[:,1:]
         else:
-            k = self.k
+            k = self.iter
             while k > 0:
                 moments = self.partition_helper(self.mu)
                 data = np.append(data, moments[:,np.newaxis], axis=1)
                 self.iterate(1,plot=plot)
                 k -= 1
-        return np.flip(data[:,1:], axis=1)
+            return np.flip(data[:,1:], axis=1)
                 
         
     def partition_plot(self):
@@ -66,12 +68,10 @@ class MethodOfMoments(Multifractal):
         '''
         data = self.data
         if self.delta_t.size == 0:
-            x = np.log([self.eps * self.b**i for i in range(1,self.k-1)])
+            x = [self.eps * self.b**i for i in range(1,self.k+1)]
         else:
             x = self.delta_t
-        print(self.q_range)
         for i in range(len(self.q_range)):
-            # print(data[i,:], np.log(data[i,:]), x, np.log(x))
             plt.plot(np.log(x), np.log(data[i,:]), label=f"{self.q_range[i]} moment")
         plt.xlabel("log(eps)")
         plt.ylabel("log(S)")
