@@ -167,3 +167,8 @@ class MethodOfMoments(Multifractal):
             tau_q.update({q:tau})
         return tau_q
 
+
+    def get_H(self):
+        L = list(self.tau_q.values())
+        i = L.index(min(L, key=lambda x: abs(x - 0)))
+        return 1 / list(self.tau_q.keys())[i]
