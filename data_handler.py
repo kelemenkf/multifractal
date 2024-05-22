@@ -17,26 +17,46 @@ class DataHandler():
 
 
     def get_data(self):
+        '''
+        Return calculated increments with different delta_ts, and the logarithm of delta_t. 
+        '''
         return self.X_abs, self.eps
 
 
     def get_drange(self):
+        '''
+        Returns the range of the date of the dataset in timedelta format.
+        '''
         return max(self.data.index) - min(self.data.index)
 
 
     def get_df(self):
+        '''
+        Returns the input data in dataframe format. 
+        '''
         return self.data
     
 
     def get_logprice(self, colname='Close'):
+        '''
+        Calculates the logprice of a price series. Colname dentoes the name of the
+        price column with 'Close' being a default from Yahoo finance. 
+        '''
         self.data['logprice'] = self.data[colname].apply(lambda x: math.log(x))
 
 
     def get_logreturns(self, colname='logprice'):
+        '''
+        Calculates X(t), i.e., the series of cumulative returns since the first date in 
+        the dataset. 
+        '''
         self.data['logreturn'] = self.data[colname].apply(lambda x: x - self.data.iloc[0][colname])
 
 
     def round_days(self, timedelta):
+        '''
+        Rounds a timedelta value to the nearest day. 
+        '''
         total_seconds = timedelta.total_seconds()
         
         s = 86400
@@ -47,6 +67,13 @@ class DataHandler():
     
 
     def get_eps(self):
+        '''
+        Returns an array of delta_t values where each element is determined by 
+        a multiplicative factor so if it is 2 and there are 2000 days in the dataset, 
+        it will return 2000, 1000, 500, 250 etc. These will be the values for the 
+        different increments in the partition function. Self.max_eps determines the largest
+        value of the increment which defaults to 183, i.e., half a year. 
+        '''
         drange = self.drange
         eps = [drange]
 
@@ -65,6 +92,11 @@ class DataHandler():
 
 
     def calc_x(self, colname='logreturn'):
+        '''
+        Calculates the increments of the series X(t), with different values of
+        delta_t as determined by self.eps. It does this both in absolute value for the 
+        partition function, and just with a regular difference for the plot. 
+        '''
         X = []
         X_abs = []
         for e in self.eps:
@@ -83,6 +115,10 @@ class DataHandler():
     
 
     def plot_x(self):
+        '''
+        Plots the increments X(t) over the whole lenght of the dataset with delta_t of 
+        1 day. 
+        '''
         plt.plot(self.data.index[1:], self.X[0],)
     
         
