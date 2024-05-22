@@ -62,7 +62,7 @@ class MethodOfMoments(Multifractal):
             return np.flip(data[:,1:], axis=1)
                 
         
-    def partition_plot(self):
+    def partition_plot(self, renorm=False):
         '''
         Plots the partition function for moments up until q (integers only) and for k iterations
         (trivial first one left out). 
@@ -72,8 +72,12 @@ class MethodOfMoments(Multifractal):
             x = [self.eps * self.b**i for i in range(1,self.k+1)]
         else:
             x = self.delta_t
+        if renorm:
+            offsets = np.log(self.data[:,0])
+        else:
+            offsets = np.zeros(len(self.q_range))
         for i in range(len(self.q_range)):
-            plt.plot(np.log(x), np.log(data[i,:]), label=f"{self.q_range[i]} moment")
+            plt.plot(np.log(x), np.log(data[i,:]) - offsets[i], label=f"{self.q_range[i]} moment")
         plt.xlabel("log(eps)")
         plt.ylabel("log(S)")
         plt.legend()
@@ -84,9 +88,8 @@ class MethodOfMoments(Multifractal):
         Calculates slope of an ols regression of x on y. Constant is added. 
         '''
         x = sm.add_constant(x)
-        model = sm.OLS(y,x)
+        model = sm.OLS(y, x)
         results = model.fit()
-        print(results.summary())
         return results.params[1]
         
         
@@ -97,10 +100,9 @@ class MethodOfMoments(Multifractal):
         '''
         tau_q = {}
         if self.delta_t.size == 0:
-            x = np.log([self.eps * self.b**i for i in range(1,self.k-1)])
+            x = [self.eps * self.b**i for i in range(1,self.k+1)]
         else:
             x = self.delta_t
-        x = [self.eps * self.b**i for i in range(1, self.data.shape[1]+1)]
         for i in range(self.data.shape[0]):
             tau = self.get_slope(np.log(self.data[i,:]),np.log(x))
             tau_q.update({self.q_range[i]:tau})

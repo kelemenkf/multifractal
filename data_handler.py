@@ -1,6 +1,7 @@
 import math
 import numpy as np
 import datetime
+import matplotlib.pyplot as plt 
 
 
 class DataHandler():
@@ -12,11 +13,11 @@ class DataHandler():
         self.max_eps = max_eps
         self.drange = self.get_drange()
         self.eps = self.get_eps()
-        self.X = self.calc_x()
+        self.X, self.X_abs = self.calc_x()
 
 
     def get_data(self):
-        return self.X, self.eps
+        return self.X_abs, self.eps
 
 
     def get_drange(self):
@@ -65,14 +66,23 @@ class DataHandler():
 
     def calc_x(self, colname='logreturn'):
         X = []
+        X_abs = []
         for e in self.eps:
             row = []
+            row_abs = []
             for i in range(e,len(self.data),e):
-                row.append(abs(self.data.iloc[i][colname] - self.data.iloc[i-e][colname]))
+                row.append(self.data.iloc[i][colname] - self.data.iloc[i-e][colname])
+                row_abs.append(abs(self.data.iloc[i][colname] - self.data.iloc[i-e][colname]))
             X.append(row)
+            X_abs.append(row_abs)
 
         X = np.array(X, dtype=object)
+        X_abs = np.array(X_abs, dtype=object)
     
-        return X
+        return X, X_abs
+    
+
+    def plot_x(self):
+        plt.plot(self.data.index[1:], self.X[0],)
     
         
