@@ -88,11 +88,15 @@ class Multifractal():
     #TODO consolidate random measure funcitonality
 
     def draw_multiplier_random(self, mu, sigma):
+        '''
+        Draws vector of multipliers of size self.b from a given distribution. Lognormal 
+        first draws from a normal and transforms according to the rule M = e^-V*ln(b)
+        '''
         if self.M == 'lognormal':
             V = np.random.normal(mu, sigma, size=self.b)
 
             M = np.exp(-V*np.log(self.b))
-            
+
             return M
     
 
