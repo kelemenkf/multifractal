@@ -97,19 +97,16 @@ class DataHandler():
         delta_t as determined by self.eps. It does this both in absolute value for the 
         partition function, and just with a regular difference for the plot. 
         '''
-        #TODO make this more efficient
         data = self.data[colname].to_numpy()
 
         X = []
         X_abs = []
         for e in self.eps:
-            row = []
-            row_abs = []
-            for i in range(e,len(self.data),e):
-                row.append(self.data.iloc[i][colname] - self.data.iloc[i-e][colname])
-                row_abs.append(abs(self.data.iloc[i][colname] - self.data.iloc[i-e][colname]))
-            X.append(row)
-            X_abs.append(row_abs)
+            diff = data[e:data.size:e] - data[:data.size-e:e]
+            abs_diff = np.abs(diff)
+
+            X.append(diff)
+            X_abs.append(abs_diff)
 
         X = np.array(X, dtype=object)
         X_abs = np.array(X_abs, dtype=object)
@@ -119,7 +116,7 @@ class DataHandler():
 
     def plot_x(self):
         '''
-        Plots the increments X(t) over the whole lenght of the dataset with delta_t of 
+        Plots the increments X(t) over the whole length of the dataset with delta_t of 
         1 day. 
         '''
         plt.plot(self.data.index[1:], self.X[0],)
