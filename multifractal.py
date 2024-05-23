@@ -1,11 +1,7 @@
 import math
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import statsmodels.api as sm
-from matplotlib.patches import Rectangle
-import sys
 
 
 class Multifractal():
@@ -16,12 +12,9 @@ class Multifractal():
     Plotting is only supported with E=1. The values of the measure is stored in mu, 
     and k denotes the number of iterations for the cascade for a given measure. 
     '''
-    def __init__(self, b, M, support_endpoints, E=1, k=0, mu=[1], P=[], r_type=""):
+    def __init__(self, b, M, support_endpoints, E=1, k=0, mu=[1], P=[], r_type="", scale=1, loc=0):
         self.b = b
-        if sum(M) == 1:
-            self.M = np.array(M, dtype='f')
-        else:
-            raise ValueError("Multipliers do not add to 1")
+        self.M = self.set_M(M)
         self.E = E
         self.k = k
         self.mu = np.array(mu)
@@ -30,10 +23,24 @@ class Multifractal():
         self.support = np.linspace(support_endpoints[0],support_endpoints[1],self.b**self.k,endpoint=False)
         self.P = np.array(P)
         self.r_type = r_type
+        self.loc = loc
+        self.scale = scale
     
     
     def __str__(self):
         return f"{self.mu}"
+    
+
+    def set_M(self, M):
+        if M in ['lognormal']:
+            return M
+        elif isinstance(M, list):
+            if sum(M) == 1:
+                return np.array(M, dtype='f')
+            else:
+                raise ValueError("Multipliers do not add to 1")
+        else:
+            raise ValueError("Not a valid multiplier")
         
         
     def set_eps(self):
@@ -78,6 +85,16 @@ class Multifractal():
         '''
         return np.random.choice(M,size=1,p=P)[0]
     
+    #TODO consolidate random measure funcitonality
+
+    def draw_multiplier_random(self, mu, sigma):
+        if self.M == 'lognormal':
+            V = np.random.normal(mu, sigma, size=self.b)
+
+            M = np.exp(-V*np.log(self.b))
+            
+            return M
+    
 
     def conservative(self):
         '''
@@ -116,16 +133,19 @@ class Multifractal():
                 temp.append(i*j)
         return temp
     
+
     def multiply_measure_random(self, r_type):
         '''
         Multiplies the measure in each cell of interval with a random set of multipliers, 
         depending on r_type. 'Cons' is conservative, 'canon' is canonical. 
         '''
         temp = []
-        for i in range(0,len(self.mu),2):
-            interval = self.mu[i:i+2]
+        for i in range(0,len(self.mu),self.b):
+            interval = self.mu[i:i+self.b]
             if r_type == 'cons':
                 M = self.conservative()
+            elif r_type == 'canon' and self.M == 'lognormal':
+                M = self.draw_multiplier_random(self.loc, self.scale)
             elif r_type == 'canon':
                 M = self.canonical()
             temp += self.multiply_measure(M, interval)
@@ -140,6 +160,8 @@ class Multifractal():
             self.set_eps()
             self.set_support()
             if self.P.size > 0:
+                temp = self.multiply_measure_random(self.r_type)
+            elif self.M in ['lognormal']:
                 temp = self.multiply_measure_random(self.r_type)
             else:
                 temp = self.multiply_measure(self.M, self.mu)

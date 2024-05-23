@@ -28,6 +28,7 @@ class MethodOfMoments(Multifractal):
             self.tau_q = self.calc_tau_q_multinomial()
         self.f_alpha = self.legendre()
         self.H = self.get_H()
+        self.alpha_0 = self.fit_spectrum()
 
 
     def partition_helper(self, X):
@@ -138,6 +139,7 @@ class MethodOfMoments(Multifractal):
         '''
         Legendre transform the tau(q) function and returns the spectrum f(alpha).
         '''
+        #TODO check weird f values around 1.
         alphas = self.discrete_slopes()
         tau = list(self.tau_q.values())
         q = list(self.tau_q.keys())
@@ -181,6 +183,14 @@ class MethodOfMoments(Multifractal):
         i = L.index(min(L, key=lambda x: abs(x - 0)))
         return 1 / list(self.tau_q.keys())[i]
     
+
+    def get_lambda(self):
+        return self.alpha_0 / self.H
+    
+
+    def get_sigma(self):
+        return np.sqrt(2 *  (self.get_lambda() - 1) /  math.log(self.b))
+
 
     def f_P(self, alpha, alpha_0, H):
         '''
