@@ -97,6 +97,9 @@ class DataHandler():
         delta_t as determined by self.eps. It does this both in absolute value for the 
         partition function, and just with a regular difference for the plot. 
         '''
+        #TODO make this more efficient
+        data = self.data[colname].to_numpy()
+
         X = []
         X_abs = []
         for e in self.eps:

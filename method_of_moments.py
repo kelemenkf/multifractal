@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
+from scipy.optimize import curve_fit
+
 
 mpl.rcParams['figure.figsize'] = (20,10)
 
@@ -25,6 +27,7 @@ class MethodOfMoments(Multifractal):
         else: 
             self.tau_q = self.calc_tau_q_multinomial()
         self.f_alpha = self.legendre()
+        self.H = self.get_H()
 
 
     def partition_helper(self, X):
@@ -138,10 +141,11 @@ class MethodOfMoments(Multifractal):
         alphas = self.discrete_slopes()
         tau = list(self.tau_q.values())
         q = list(self.tau_q.keys())
-        f_alpha = {}
+        f_alpha = {'f':np.array([]), 'alpha':np.array([])}
         for i in range(len(alphas)):
             f = alphas[i] * q[i] - tau[i]
-            f_alpha.update({alphas[i]:f})
+            f_alpha['f'] = np.append(f_alpha['f'], f)
+            f_alpha['alpha'] = np.append(f_alpha['alpha'], alphas[i])
         return f_alpha
     
     
@@ -149,7 +153,7 @@ class MethodOfMoments(Multifractal):
         '''
         Plots the estimated multifractal spectrum. 
         '''
-        plt.plot(list(self.f_alpha.keys()), list(self.f_alpha.values()))
+        plt.scatter(self.f_alpha['alpha'], self.f_alpha['f'])
         plt.xlabel('alpha')
         plt.ylabel('f(alpha)')
 
@@ -172,3 +176,19 @@ class MethodOfMoments(Multifractal):
         L = list(self.tau_q.values())
         i = L.index(min(L, key=lambda x: abs(x - 0)))
         return 1 / list(self.tau_q.keys())[i]
+    
+
+    def f_P(self, alpha, alpha_0, H):
+        return 1 - ((alpha - alpha_0)**2 / (4 * H * (alpha_0 - H)))
+
+
+    def fit_spectrum(self):
+        alpha_data = self.f_alpha['alpha']
+        f_alpha_data = self.f_alpha['f']
+        H = self.H
+
+        params, covariance = curve_fit(lambda alpha, alpha_0: self.f_P(alpha, alpha_0, H), alpha_data, f_alpha_data)
+
+        return params[0]  
+    
+
