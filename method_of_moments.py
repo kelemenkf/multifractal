@@ -173,16 +173,28 @@ class MethodOfMoments(Multifractal):
 
 
     def get_H(self):
+        '''
+        Returns the H index that is the value where the scaling function is the closest to 0.
+        '''
+        #TODO better approximation for H.
         L = list(self.tau_q.values())
         i = L.index(min(L, key=lambda x: abs(x - 0)))
         return 1 / list(self.tau_q.keys())[i]
     
 
     def f_P(self, alpha, alpha_0, H):
+        '''
+        Define the functinal form of the spectrum of the price process. 
+        '''
         return 1 - ((alpha - alpha_0)**2 / (4 * H * (alpha_0 - H)))
 
 
     def fit_spectrum(self):
+        '''
+        Fits the spectrum function to the data obtained by the Legendre transform. 
+        Returns alpha0, the maximum value of the parabola and the most likely exponent
+        for a given time interval. 
+        '''
         alpha_data = self.f_alpha['alpha']
         f_alpha_data = self.f_alpha['f']
         H = self.H
