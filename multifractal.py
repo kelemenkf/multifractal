@@ -12,7 +12,7 @@ class Multifractal():
     Plotting is only supported with E=1. The values of the measure is stored in mu, 
     and k denotes the number of iterations for the cascade for a given measure. 
     '''
-    def __init__(self, b, M, support_endpoints, E=1, k=0, mu=[1], P=[], r_type="", scale=1, loc=0):
+    def __init__(self, M, b=2, support_endpoints=[0,1], E=1, k=0, mu=[1], P=[], r_type="", scale=1, loc=0):
         self.b = b
         self.M = self.set_M(M)
         self.E = E

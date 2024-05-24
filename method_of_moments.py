@@ -11,8 +11,8 @@ mpl.rcParams['figure.figsize'] = (20,10)
 from .multifractal import Multifractal
 
 class MethodOfMoments(Multifractal):
-    def __init__(self, b, M, support_endpoints, q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, iter=0, mu=[1], P=[], r_type="", loc=0, scale=1):
-        super().__init__(b, M, support_endpoints, E, k, mu, P, r_type, loc, scale)
+    def __init__(self, M, b=2, support_endpoints=[0,1], q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, iter=0, mu=[1], P=[], r_type="", loc=0, scale=1):
+        super().__init__(M, b, support_endpoints, E, k, mu, P, r_type, loc, scale)
 
         self.q = q
         self.gran = gran 
