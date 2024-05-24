@@ -181,6 +181,7 @@ class MethodOfMoments(Multifractal):
         #TODO better approximation for H.
         L = list(self.tau_q.values())
         i = L.index(min(L, key=lambda x: abs(x - 0)))
+        print(list(self.tau_q.keys())[i])
         return 1 / list(self.tau_q.keys())[i]
     
 
