@@ -18,6 +18,10 @@ class Simulator():
         self.model = self.set_model()
         self.n = n
 
+    
+    def get_increment(self, X):
+        return np.diff(X)
+
 
     def sim_mmar(self):
         if self.sim_type == 'mmar_m':
@@ -25,7 +29,9 @@ class Simulator():
             mu = self.model.get_measure()
             mu_increment = np.sqrt(mu)
             bm = BrownianMotion()
-            s = bm.sample(mu_increment.size-1)
+            s = bm.sample(mu_increment.size)
+            s = self.get_increment(s)
+            self.model = self.set_model()
             return s*mu_increment
         
 
@@ -45,7 +51,7 @@ class Simulator():
             return self.set_theta()
             
 
-    def plot_mmar(self):
+    def plot_mmar_lag(self):
         y = self.sim_mmar()
         x = range(y.size)
         plt.plot(x, y)
@@ -53,6 +59,13 @@ class Simulator():
             plt.title("MMAR martingale")
         plt.xlabel('t')
         plt.ylabel('X(t)')
+
+
+    def plot_mmar(self):
+        y = self.sim_mmar()
+        y = np.cumsum(y)
+        x = range(y.size)
+        plt.plot(x, y)
 
 
     def plot_bm(self):
