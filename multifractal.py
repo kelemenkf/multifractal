@@ -12,7 +12,7 @@ class Multifractal():
     Plotting is only supported with E=1. The values of the measure is stored in mu, 
     and k denotes the number of iterations for the cascade for a given measure. 
     '''
-    def __init__(self, M, b=2, support_endpoints=[0,1], E=1, k=0, mu=[1], P=[], r_type="", scale=1, loc=0):
+    def __init__(self, M, b=2, support_endpoints=[0,1], E=1, k=0, mu=[1], P=[], r_type="", scale=1, loc=0, plot=True):
         self.b = b
         self.M = self.set_M(M)
         self.E = E
@@ -25,8 +25,9 @@ class Multifractal():
         self.r_type = r_type
         self.loc = loc
         self.scale = scale
+        self.plot = plot
     
-    
+
     def __str__(self):
         return f"{self.mu}"
     
@@ -148,7 +149,7 @@ class Multifractal():
             interval = self.mu[i:i+self.b]
             if r_type == 'cons':
                 M = self.conservative()
-            elif r_type == 'canon' and self.M == 'lognormal':
+            elif self.M == 'lognormal':
                 M = self.draw_multiplier_random(self.loc, self.scale)
             elif r_type == 'canon':
                 M = self.canonical()
@@ -156,7 +157,7 @@ class Multifractal():
         return temp
         
     
-    def iterate(self, k, plot=True):
+    def iterate(self, k):
         '''
         Does k iterations of the cascade, then Plots the resulting measure. 
         '''
@@ -171,7 +172,7 @@ class Multifractal():
                 temp = self.multiply_measure(self.M, self.mu)
             self.mu = np.array(temp)
             k -= 1
-        if k <= 10 and plot == True:
+        if k <= 10 and self.plot == True:
             self.plot_density()
         
         
