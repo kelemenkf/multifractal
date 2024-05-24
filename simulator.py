@@ -20,27 +20,48 @@ class Simulator():
 
     
     def get_increment(self, X):
+        '''
+        Returns the first difference of a vector. 
+        '''
         return np.diff(X)
 
 
     def sim_mmar(self):
+        '''
+        Simulates one path of a multifractal price series. If sim_type is 'mmar_m', 
+        it simulates the martingale version using a standard Brwonian motion. If sim_type 
+        is 'mmar' it simulates the MMAR using a fractional Brownian motion with an H supplied
+        to the __init__ function. 
+        '''
         if self.sim_type == 'mmar_m':
             self.model.iterate(self.k)
             mu = self.model.get_measure()
             mu_increment = np.sqrt(mu)
-            bm = BrownianMotion()
+            bm = BrownianMotion(t=self.T)
             s = bm.sample(mu_increment.size)
             s = self.get_increment(s)
             self.model = self.set_model()
             return s*mu_increment
+        elif self.sim_type == 'mmar':
+            self.model.iterate(self.k)
+            mu = self.model.get_measure()
+            mu_increment = np.sqrt(mu)
+            fbm = FractionalBrownianMotion(hurst=self.H)
         
 
     def set_theta(self):
-        theta = Multifractal('lognormal', loc=self.loc, scale=self.scale, plot=False, mu=[self.T], support_endpoints=[0, self.T])
+        '''
+        Instantiates a multiplicative multifractal measure using lognormal multipliers,
+        and loc and scale parameters, with support [0,T]. This is the model for trading time.  
+        '''
+        theta = Multifractal('lognormal', loc=self.loc, scale=self.scale, plot=False, support_endpoints=[0, self.T])
         return theta
 
 
     def set_model(self):
+        '''
+        Depending on sim_type, instantiates a model for simulation. 
+        '''
         if self.sim_type == 'bm':
             b = BrownianMotion(t=self.T)
             return b
@@ -49,9 +70,14 @@ class Simulator():
             return fbm
         elif self.sim_type == 'mmar_m':
             return self.set_theta()
+        elif self.sim_type == 'mmar':
+            return self.set_theta()
     
 
     def plot_mmar(self):
+        '''
+        Plots a realization of a path of MMAR (cumulative returns). 
+        '''
         y = self.sim_mmar()
         y = np.cumsum(y)
         x = range(y.size)
@@ -59,6 +85,9 @@ class Simulator():
 
     
     def plot_mmar_lag(self):
+        '''
+        Plots the increments of a realization of a simulated MMAR path. 
+        '''
         y = self.sim_mmar()
         x = range(y.size)
         plt.plot(x, y)
@@ -69,6 +98,9 @@ class Simulator():
 
 
     def plot_bm(self):
+        '''
+        Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
+        '''
         model = self.model
         y = model.sample(self.n)
         x = model.times(self.n)
@@ -82,6 +114,9 @@ class Simulator():
 
 
     def plot_bm_diff(self):
+        '''
+        Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
+        '''
         model = self.model
         y = model.sample(self.n)
         y = self.get_increment(y)
