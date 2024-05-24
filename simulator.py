@@ -21,10 +21,17 @@ class Simulator():
 
     def sim_mmar(self):
         if self.sim_type == 'mmar_m':
-            theta = Multifractal('lognormal', loc=self.loc, scale=self.scale, plot=False)
-            theta.iterate(self.k)
-            mu = theta.get_measure()
+            self.model.iterate(self.k)
+            mu = self.model.get_measure()
+            mu_increment = np.sqrt(mu)
+            bm = BrownianMotion()
+            s = bm.sample(mu_increment.size-1)
+            return s*mu_increment
+        
 
+    def set_theta(self):
+        theta = Multifractal('lognormal', loc=self.loc, scale=self.scale, plot=False)
+        return theta
 
 
     def set_model(self):
@@ -35,8 +42,18 @@ class Simulator():
             fbm = FractionalBrownianMotion(hurst=self.H, t=self.t)
             return fbm
         elif self.sim_type == 'mmar_m':
-            self.sim_mmar()
+            return self.set_theta()
             
+
+    def plot_mmar(self):
+        y = self.sim_mmar()
+        x = range(y.size)
+        plt.plot(x, y)
+        if self.sim_type == 'mmar_m':
+            plt.title("MMAR martingale")
+        plt.xlabel('t')
+        plt.ylabel('X(t)')
+
 
     def plot_bm(self):
         model = self.model
