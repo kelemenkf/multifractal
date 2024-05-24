@@ -199,6 +199,8 @@ class MethodOfMoments(Multifractal):
         return np.sqrt(2 *  (self.get_lambda() - 1) /  math.log(self.b))
 
 
+    #TODO check if this is the correct spectrum. 
+    
     def f_P(self, alpha, alpha_0, H):
         '''
         Define the functinal form of the spectrum of the price process. 

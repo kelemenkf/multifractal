@@ -26,6 +26,7 @@ class Simulator():
         '''
         return np.diff(X)
 
+    #TODO add BM/FBM sampler.
 
     def sim_mmar(self):
         '''
@@ -35,6 +36,8 @@ class Simulator():
         to the __init__ function. 
         '''
         #TODO check if this makes sense. 
+        #TODO simulate at different time scales
+        #TODO drift for FBM
         self.model.iterate(self.k)
         mu = self.model.get_measure()
         mu_increment = np.sqrt(mu)

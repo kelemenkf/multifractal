@@ -162,6 +162,7 @@ class Multifractal():
         '''
         Does k iterations of the cascade, then Plots the resulting measure. 
         '''
+        #TODO make this more efficinet
         while k > 0:
             self.set_eps()
             self.set_support()
