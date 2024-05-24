@@ -21,6 +21,13 @@ class DataHandler():
         Return calculated increments with different delta_ts, and the logarithm of delta_t. 
         '''
         return self.X_abs, self.eps
+    
+
+    def get_X(self):
+        '''
+        Returns the value of the increments X, instead of the absolute value. 
+        '''
+        return self.X
 
 
     def get_drange(self):
@@ -114,11 +121,17 @@ class DataHandler():
         return X, X_abs
     
 
-    def plot_x(self):
+    def plot_x_diff(self):
         '''
         Plots the increments X(t) over the whole length of the dataset with delta_t of 
         1 day. 
         '''
-        plt.plot(self.data.index[1:], self.X[0],)
+        plt.plot(self.data.index[1:], self.X[0])
     
+
+    def plot_x(self):
+        '''
+        Plots X(t) with increments of 1 day. 
+        '''
+        plt.plot(self.data.index[1:], np.cumsum(self.X[0]))
         

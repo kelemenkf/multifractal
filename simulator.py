@@ -8,7 +8,7 @@ from .multifractal import Multifractal
 
 
 class Simulator():
-    def __init__(self, sim_type='bm', T=1, n=100, H=0.5, loc=0, scale=1):
+    def __init__(self, sim_type='bm', T=1, n=100, H=0.5, loc=0, scale=1, drift=0):
         self.sim_type = sim_type
         self.T = T
         self.H = H
@@ -17,6 +17,7 @@ class Simulator():
         self.k = math.ceil(math.log(self.T, 2))
         self.model = self.set_model()
         self.n = n
+        self.drift = drift
 
     
     def get_increment(self, X):
@@ -33,20 +34,18 @@ class Simulator():
         is 'mmar' it simulates the MMAR using a fractional Brownian motion with an H supplied
         to the __init__ function. 
         '''
+        #TODO check if this makes sense. 
+        self.model.iterate(self.k)
+        mu = self.model.get_measure()
+        mu_increment = np.sqrt(mu)
         if self.sim_type == 'mmar_m':
-            self.model.iterate(self.k)
-            mu = self.model.get_measure()
-            mu_increment = np.sqrt(mu)
-            bm = BrownianMotion(t=self.T)
-            s = bm.sample(mu_increment.size)
-            s = self.get_increment(s)
-            self.model = self.set_model()
-            return s*mu_increment
+            model = BrownianMotion(drift=self.drift, t=self.T)
         elif self.sim_type == 'mmar':
-            self.model.iterate(self.k)
-            mu = self.model.get_measure()
-            mu_increment = np.sqrt(mu)
-            fbm = FractionalBrownianMotion(hurst=self.H)
+            model = FractionalBrownianMotion(hurst=self.H, t=self.T)
+        s = model.sample(mu_increment.size)
+        s = self.get_increment(s)
+        self.model = self.set_model()
+        return s*mu_increment
         
 
     def set_theta(self):

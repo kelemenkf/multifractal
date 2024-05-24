@@ -144,6 +144,7 @@ class Multifractal():
         Multiplies the measure in each cell of interval with a random set of multipliers, 
         depending on r_type. 'Cons' is conservative, 'canon' is canonical. 
         '''
+        #TODO add other multiplier families. 
         temp = []
         for i in range(0,len(self.mu),self.b):
             interval = self.mu[i:i+self.b]
