@@ -8,13 +8,13 @@ from .multifractal import Multifractal
 
 
 class Simulator():
-    def __init__(self, sim_type='bm', t=1, n=100, H=0.5, loc=0, scale=1):
+    def __init__(self, sim_type='bm', T=1, n=100, H=0.5, loc=0, scale=1):
         self.sim_type = sim_type
-        self.t = t
+        self.T = T
         self.H = H
         self.loc = loc
         self.scale = scale
-        self.k = math.ceil(math.log(self.t, 2))
+        self.k = math.ceil(math.log(self.T, 2))
         self.model = self.set_model()
         self.n = n
 
@@ -36,21 +36,28 @@ class Simulator():
         
 
     def set_theta(self):
-        theta = Multifractal('lognormal', loc=self.loc, scale=self.scale, plot=False)
+        theta = Multifractal('lognormal', loc=self.loc, scale=self.scale, plot=False, mu=[self.T], support_endpoints=[0, self.T])
         return theta
 
 
     def set_model(self):
         if self.sim_type == 'bm':
-            b = BrownianMotion(t=self.t)
+            b = BrownianMotion(t=self.T)
             return b
         elif self.sim_type == 'fbm':
-            fbm = FractionalBrownianMotion(hurst=self.H, t=self.t)
+            fbm = FractionalBrownianMotion(hurst=self.H, t=self.T)
             return fbm
         elif self.sim_type == 'mmar_m':
             return self.set_theta()
-            
+    
 
+    def plot_mmar(self):
+        y = self.sim_mmar()
+        y = np.cumsum(y)
+        x = range(y.size)
+        plt.plot(x, y)
+
+    
     def plot_mmar_lag(self):
         y = self.sim_mmar()
         x = range(y.size)
@@ -59,13 +66,6 @@ class Simulator():
             plt.title("MMAR martingale")
         plt.xlabel('t')
         plt.ylabel('X(t)')
-
-
-    def plot_mmar(self):
-        y = self.sim_mmar()
-        y = np.cumsum(y)
-        x = range(y.size)
-        plt.plot(x, y)
 
 
     def plot_bm(self):
@@ -79,5 +79,13 @@ class Simulator():
         plt.plot(x, y)
         plt.xlabel('t')
         plt.ylabel('X(t)')
+
+
+    def plot_bm_diff(self):
+        model = self.model
+        y = model.sample(self.n)
+        y = self.get_increment(y)
+        x = range(y.size)
+        plt.plot(x, y)
         
 

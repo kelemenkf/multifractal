@@ -166,7 +166,7 @@ class Multifractal():
             self.set_support()
             if self.P.size > 0:
                 temp = self.multiply_measure_random(self.r_type)
-            elif self.M in ['lognormal']:
+            elif isinstance(self.M, str) and self.M in ['lognormal']:
                 temp = self.multiply_measure_random(self.r_type)
             else:
                 temp = self.multiply_measure(self.M, self.mu)
@@ -188,7 +188,7 @@ class Multifractal():
         Plots the density function of the measure. 
         '''
         fig, ax = plt.subplots()
-        plot = ax.bar(np.linspace(0,1,self.b**self.k,endpoint=False),self.mu/self.eps,1/(self.b**self.k),align='edge')
+        plot = ax.bar(np.linspace(self.support_endpoints[0],self.support_endpoints[1],self.b**self.k,endpoint=False),self.mu/self.eps,self.support_endpoints[1]/(self.b**self.k),align='edge')
         plt.show()
             
     
