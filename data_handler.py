@@ -13,21 +13,14 @@ class DataHandler():
         self.max_eps = max_eps
         self.drange = self.get_drange()
         self.eps = self.get_eps()
-        self.X, self.X_abs = self.calc_x()
+        self.X = self.calc_x()
 
 
     def get_data(self):
         '''
         Return calculated increments with different delta_ts, and the logarithm of delta_t. 
         '''
-        return self.X_abs, self.eps
-    
-
-    def get_X(self):
-        '''
-        Returns the value of the increments X, instead of the absolute value. 
-        '''
-        return self.X
+        return self.X, self.eps
 
 
     def get_drange(self):
@@ -118,7 +111,7 @@ class DataHandler():
         X = np.array(X, dtype=object)
         X_abs = np.array(X_abs, dtype=object)
     
-        return X, X_abs
+        return X
     
 
     def plot_x_diff(self):

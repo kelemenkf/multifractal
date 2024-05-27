@@ -8,7 +8,7 @@ from .multifractal import Multifractal
 
 
 class Simulator():
-    def __init__(self, sim_type='bm', T=1, n=100, H=0.5, loc=0, scale=1, drift=0):
+    def __init__(self, sim_type='bm', T=1, n=100, H=0.5, loc=0, scale=1, drift=False):
         self.sim_type = sim_type
         self.T = T
         self.k = math.ceil(math.log(self.T, 2)) 

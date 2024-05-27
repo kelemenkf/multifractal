@@ -5,13 +5,13 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from scipy.optimize import curve_fit
 
-
 mpl.rcParams['figure.figsize'] = (20,10)
 
 from .multifractal import Multifractal
 
+
 class MethodOfMoments(Multifractal):
-    def __init__(self, M, b=2, support_endpoints=[0,1], q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, iter=0, mu=[1], P=[], r_type="", loc=0, scale=1):
+    def __init__(self, M, b=2, support_endpoints=[0,1], q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, iter=0, mu=[1], P=[], r_type="", loc=0, scale=1, drift=1):
         super().__init__(M, b, support_endpoints, E, k, mu, P, r_type, loc, scale)
 
         self.q = q
@@ -29,6 +29,15 @@ class MethodOfMoments(Multifractal):
         self.f_alpha = self.legendre()
         self.H = self.get_H()
         self.alpha_0 = self.fit_spectrum()
+        if drift in self.delta_t:
+            self.drift = self.get_drift(drift)
+        else:
+            raise ValueError('No data for that frequency')
+
+
+    def get_drift(self, n):
+        delta_t_index = np.where(self.delta_t == n)[0][0]
+        return np.mean(self.X[delta_t_index])
 
 
     def partition_helper(self, X):
@@ -50,9 +59,10 @@ class MethodOfMoments(Multifractal):
         beyond the trivial first one. 
         '''
         data = np.ones((self.q_range.size,1))
+        X = np.abs(self.X)
         if self.X.size > 0:
             for t in range(len(self.delta_t)):
-                moments = self.partition_helper(self.X[t])
+                moments = self.partition_helper(X[t])
                 data = np.append(data, moments[:,np.newaxis], axis=1)
             #First column is excluded because in this context it corresponds to nothing. 
             return data[:,1:]
@@ -200,7 +210,7 @@ class MethodOfMoments(Multifractal):
 
 
     #TODO check if this is the correct spectrum. 
-    
+
     def f_P(self, alpha, alpha_0, H):
         '''
         Define the functinal form of the spectrum of the price process. 
