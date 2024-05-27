@@ -29,6 +29,7 @@ class Multifractal():
     
 
     def __str__(self):
+        #TODO multifractal current model prints out multiplier, base, support.
         return f"{self.mu}"
     
 
