@@ -8,7 +8,7 @@ from .multifractal import Multifractal
 
 
 class Simulator():
-    def __init__(self, sim_type='bm', T=1, n=100, H=0.5, loc=0, scale=1, drift=False):
+    def __init__(self, sim_type='bm', T=1, n=100, H=0.5, loc=0, scale=1, drift=0, diffusion=1):
         self.sim_type = sim_type
         self.T = T
         self.k = math.ceil(math.log(self.T, 2)) 
@@ -19,6 +19,7 @@ class Simulator():
         if self.sim_type == 'mmar_r' or self.sim_type == 'mmar':
             self.T = self.subordinator.b**self.k
         self.drift = drift
+        self.diffusion = diffusion
         self.subordinated = self.set_subordinated()
         self.n = n
 
@@ -35,7 +36,7 @@ class Simulator():
 
     def set_subordinated(self):
         if self.sim_type == 'mmar_m' or 'bm':
-            return BrownianMotion(drift=self.drift, t=self.T)
+            return BrownianMotion(drift=self.drift, scale=self.diffusion, t=self.T)
         elif self.sim_type == 'mmar' or 'fbm':
             return FractionalBrownianMotion(hurst=self.H, t=self.T)
 
@@ -138,5 +139,5 @@ class Simulator():
         #which shows the distributional non-linearities. At max time scale it may be Gaussian, as you get close to 
         #slower frequencies this may not be the case. 
         y, _ = self.sim_mmar()
-        bins = np.histogram(y, bins=math.ceil(np.sqrt(y.size)), density=False)[1]   
-        plt.hist(y, bins)
+        bins = np.histogram(y, bins=math.ceil(np.sqrt(y.size)), density=False)  
+        plt.hist(y, bins[1])
