@@ -11,7 +11,7 @@ from .multifractal import Multifractal
 
 
 class MethodOfMoments(Multifractal):
-    def __init__(self, M_type, M=[0.6,0.4], b=2, support_endpoints=[0,1], q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, iter=0, mu=[1], P=[], r_type="", loc=0, scale=1, drift=1):
+    def __init__(self, M_type, M=[0.6,0.4], b=2, support_endpoints=[0,1], q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, iter=0, mu=[1], P=[], r_type="", loc=0, scale=1, drift=None, diffusion=None):
         super().__init__(M, M_type, b, support_endpoints, E, k, mu, P, r_type, loc, scale)
 
         self.q = q
@@ -29,15 +29,24 @@ class MethodOfMoments(Multifractal):
         self.f_alpha = self.legendre()
         self.H = self.get_H()
         self.alpha_0 = self.fit_spectrum()
-        if drift in self.delta_t:
+        if drift != None and drift in self.delta_t:
             self.drift = self.get_drift(drift)
-        else:
-            raise ValueError('No data for that frequency')
+        # else:
+        #     raise ValueError('No data for that frequency')
+        if diffusion != None and diffusion in self.delta_t:
+            self.diffusion = self.get_diffusion(diffusion)
+        # else:
+        #     raise ValueError('No data for that frequency')
 
 
     def get_drift(self, n):
         delta_t_index = np.where(self.delta_t == n)[0][0]
         return np.mean(self.X[delta_t_index])
+    
+
+    def get_diffusion(self, n):
+        delta_t_index = np.where(self.delta_t == n)[0][0]
+        return np.std(self.X[delta_t_index])
 
 
     def partition_helper(self, X):
