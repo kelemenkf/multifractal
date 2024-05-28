@@ -11,6 +11,7 @@ class Simulator():
     def __init__(self, sim_type='bm', T=1, n=100, H=0.5, loc=0, scale=1, drift=0, diffusion=1):
         self.sim_type = sim_type
         self.T = T
+        self.n = n
         self.k = math.ceil(math.log(self.T, 2)) 
         self.H = H
         self.loc = loc
@@ -21,7 +22,6 @@ class Simulator():
         self.drift = drift
         self.diffusion = diffusion
         self.subordinated = self.set_subordinated()
-        self.n = n
 
 
     def set_subordinator(self):
@@ -35,6 +35,10 @@ class Simulator():
 
 
     def set_subordinated(self):
+        '''
+        Sets the subordinated process for the different simulated models. If it's bm or fbm 
+        only this function will run. 
+        '''
         if self.sim_type == 'mmar_m' or 'bm':
             return BrownianMotion(drift=self.drift, scale=self.diffusion, t=self.T)
         elif self.sim_type == 'mmar' or 'fbm':
@@ -49,6 +53,10 @@ class Simulator():
 
 
     def sim_bm(self, n):
+        '''
+        Simulates a discretized path with sample size n of a Brownian motion or Fractional brownian motion
+        and returns both the time indexes and the realization of the process at that time. 
+        '''
         times = self.subordinated.times(n)
         if self.sim_type == 'bm':
             return (self.subordinated.sample(n), times)
@@ -73,6 +81,8 @@ class Simulator():
 
         mu_increment_size = mu_increment.size
 
+        temp = self.sim_type
+
         if self.sim_type == 'mmar_m':
             self.sim_type = 'bm'
         elif self.sim_type == 'mmar':
@@ -83,6 +93,7 @@ class Simulator():
 
         #Reset it because an instance of Multifractal keeps track of k. 
         self.subordinator = self.set_subordinator()
+        self.sim_type = temp
 
         return (s*mu_increment, times)
     
@@ -135,9 +146,16 @@ class Simulator():
 
 
     def plot_dist(self):
+        '''
+        Plots the return distribution of a single realization of an mmar.
+        '''
         #TODO plot the distribution of a given realization for different time scales,
         #which shows the distributional non-linearities. At max time scale it may be Gaussian, as you get close to 
         #slower frequencies this may not be the case. 
-        y, _ = self.sim_mmar()
-        bins = np.histogram(y, bins=math.ceil(np.sqrt(y.size)), density=False)  
+        if self.sim_type in ['mmar_m', 'mmar']:
+            y, _ = self.sim_mmar()
+        elif self.sim_type in ['bm', 'fbm']:
+            y, _ = self.sim_bm(self.n)
+            y = self.get_increment(y)
+        bins = np.histogram(y, bins=math.ceil(np.sqrt(y.size)))  
         plt.hist(y, bins[1])
