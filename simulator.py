@@ -8,10 +8,10 @@ from .multifractal import Multifractal
 
 
 class Simulator():
-    def __init__(self, sim_type='bm', T=1, n=100, H=0.5, loc=0, scale=1, drift=0, diffusion=1):
+    def __init__(self, sim_type='bm', T=1000, dt_scale=1, H=0.5, loc=0, scale=1, drift=0, diffusion=1):
         self.sim_type = sim_type
         self.T = T
-        self.n = n
+        self.dt_scale = dt_scale
         self.k = math.ceil(math.log(self.T, 2)) 
         self.H = H
         self.loc = loc
@@ -22,6 +22,7 @@ class Simulator():
         self.drift = drift
         self.diffusion = diffusion
         self.subordinated = self.set_subordinated()
+        self.n = self.T // self.dt_scale
 
 
     def set_subordinator(self):
@@ -45,11 +46,12 @@ class Simulator():
             return FractionalBrownianMotion(hurst=self.H, t=self.T)
 
     
-    def get_increment(self, X):
+    def get_increment(self, X, e):
         '''
         Returns the first difference of a vector. 
         '''
-        return np.diff(X)
+        diff = X[e:X.size:e] - X[:X.size-e:e]
+        return diff
 
 
     def sim_bm(self, n):
@@ -72,7 +74,6 @@ class Simulator():
         to the __init__ function. 
         '''
         #TODO check if this makes sense in the case of FBM. 
-        #TODO simulate at different time scales
         #TODO drift for FBM
         #TODO README for the reason for the number of iterations. 
         self.subordinator.iterate(self.k)
@@ -89,7 +90,7 @@ class Simulator():
             self.sim_type = 'fbm'
 
         s, times = self.sim_bm(mu_increment_size)
-        s = self.get_increment(s)
+        s = self.get_increment(s, self.dt_scale)
 
         #Reset it because an instance of Multifractal keeps track of k. 
         self.subordinator = self.set_subordinator()
@@ -139,23 +140,31 @@ class Simulator():
         Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
         '''
         y, x = self.sim_bm(self.n)
-        y = self.get_increment(y)
+        y = self.get_increment(y, self.dt_scale)
         plt.plot(x[1:], y)
         plt.xlabel('t') 
         plt.ylabel('X(t)')
 
 
-    def plot_dist(self):
+    def plot_dist(self,increments=[1,7,30,180]):
         '''
         Plots the return distribution of a single realization of an mmar.
         '''
-        #TODO plot the distribution of a given realization for different time scales,
-        #which shows the distributional non-linearities. At max time scale it may be Gaussian, as you get close to 
-        #slower frequencies this may not be the case. 
-        if self.sim_type in ['mmar_m', 'mmar']:
-            y, _ = self.sim_mmar()
-        elif self.sim_type in ['bm', 'fbm']:
-            y, _ = self.sim_bm(self.n)
-            y = self.get_increment(y)
-        bins = np.histogram(y, bins=math.ceil(np.sqrt(y.size)))  
-        plt.hist(y, bins[1])
+        fig, axes = plt.subplots(len(increments), 1, sharex='row', figsize=(20, 40))
+        fig.subplots_adjust(hspace=0.5)
+
+        for i in range(len(increments)):
+            self.n = self.T // increments[i]
+
+            if self.sim_type in ['mmar_m', 'mmar']:
+                y, _ = self.sim_mmar()
+                y = self.get_increment(y, increments[i])
+            elif self.sim_type in ['bm', 'fbm']:
+                y, _ = self.sim_bm(self.n)
+                y = np.diff(y)
+            bins = np.histogram(y, bins=math.ceil(np.sqrt(y.size)))  
+
+            axes[i].hist(y, bins[1])
+            axes[i].set_title(f"Return distribution at scale of {increments[i]} days.")
+            axes[i].set_xlabel("X(t)")
+            axes[i].set_ylabel("Density")
