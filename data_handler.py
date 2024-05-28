@@ -50,25 +50,21 @@ class DataHandler():
         value of the increment which defaults to 183, i.e., half a year. 
         '''
         #TODO change this so the lowest frequency can be not just daily but anything. 
-        #TODO consolidate this function
+        drange = self.drange
+        eps = [drange]
+
+        limit = datetime.timedelta(1) if self.obs_data else 1
+
+        while drange > limit:
+            eps.append(drange/self.delta_t)
+            drange /= self.delta_t
+
         if self.obs_data:
-            drange = self.drange
-            eps = [drange]
-
-            while drange > datetime.timedelta(1):
-                eps.append(drange/self.delta_t)
-                drange /= self.delta_t
-
             for e in range(len(eps)):
                 eps[e] = self.round_days(eps[e])
-
         else:
-            drange = self.data.index[-1] - self.data.index[0]
-            eps = [drange]
-
-            while drange > 1:
-                eps.append(round(drange/self.delta_t))
-                drange /= self.delta_t
+            eps = np.rint(eps)
+            eps = np.array(eps, dtype=np.int_)
 
         eps = np.array(eps)
         eps = eps[eps < self.max_eps]
@@ -84,7 +80,7 @@ class DataHandler():
         partition function, and just with a regular difference for the plot. 
         '''
         data = self.data[colname].to_numpy()
-
+        print(self.eps)
         X = []
         for e in self.eps:
             diff = data[e:data.size:e] - data[:data.size-e:e]
