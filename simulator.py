@@ -131,3 +131,12 @@ class Simulator():
         plt.plot(x[1:], y)
         plt.xlabel('t') 
         plt.ylabel('X(t)')
+
+
+    def plot_dist(self):
+        #TODO plot the distribution of a given realization for different time scales,
+        #which shows the distributional non-linearities. At max time scale it may be Gaussian, as you get close to 
+        #slower frequencies this may not be the case. 
+        y, _ = self.sim_mmar()
+        bins = np.histogram(y, bins=math.ceil(np.sqrt(y.size)), density=False)[1]   
+        plt.hist(y, bins)

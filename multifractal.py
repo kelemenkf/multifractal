@@ -168,7 +168,6 @@ class Multifractal():
                 self.mu = np.array(self.multiply_measure_random())
             else:
                 self.mu = np.array(self.multiply_measure(self.M, self.mu))
-            print(np.sum(self.mu))
             k -= 1
         if k <= 10 and self.plot == True:
             self.plot_density()
