@@ -100,16 +100,12 @@ class DataHandler():
         data = self.data[colname].to_numpy()
 
         X = []
-        X_abs = []
         for e in self.eps:
             diff = data[e:data.size:e] - data[:data.size-e:e]
-            abs_diff = np.abs(diff)
 
             X.append(diff)
-            X_abs.append(abs_diff)
 
         X = np.array(X, dtype=object)
-        X_abs = np.array(X_abs, dtype=object)
     
         return X
     
