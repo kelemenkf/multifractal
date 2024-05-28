@@ -5,37 +5,18 @@ import matplotlib.pyplot as plt
 
 
 class DataHandler():
-    def __init__(self, data, delta_t=1.1, max_eps=183):
+    def __init__(self, data, obs_data=True, delta_t=1.1, max_eps=183):
+        self.obs_data = obs_data
         self.data = data
-        self.get_logprice()
-        self.get_logreturns()
+        if obs_data:
+            self.get_logprice()
+            self.get_logreturns()
         self.delta_t = delta_t
         self.max_eps = max_eps
         self.drange = self.get_drange()
         self.eps = self.get_eps()
         self.X = self.calc_x()
 
-
-    def get_data(self):
-        '''
-        Return calculated increments with different delta_ts, and the logarithm of delta_t. 
-        '''
-        return self.X, self.eps
-
-
-    def get_drange(self):
-        '''
-        Returns the range of the date of the dataset in timedelta format.
-        '''
-        return max(self.data.index) - min(self.data.index)
-
-
-    def get_df(self):
-        '''
-        Returns the input data in dataframe format. 
-        '''
-        return self.data
-    
 
     def get_logprice(self, colname='Close'):
         '''
@@ -53,18 +34,12 @@ class DataHandler():
         self.data['logreturn'] = self.data[colname].apply(lambda x: x - self.data.iloc[0][colname])
 
 
-    def round_days(self, timedelta):
+    def get_drange(self):
         '''
-        Rounds a timedelta value to the nearest day. 
+        Returns the range of the date of the dataset in timedelta format.
         '''
-        total_seconds = timedelta.total_seconds()
-        
-        s = 86400
-        
-        days = math.ceil(total_seconds/s)
-        
-        return days
-    
+        return max(self.data.index) - min(self.data.index)
+
 
     def get_eps(self):
         '''
@@ -74,22 +49,33 @@ class DataHandler():
         different increments in the partition function. Self.max_eps determines the largest
         value of the increment which defaults to 183, i.e., half a year. 
         '''
-        drange = self.drange
-        eps = [drange]
+        #TODO change this so the lowest frequency can be not just daily but anything. 
+        #TODO consolidate this function
+        if self.obs_data:
+            drange = self.drange
+            eps = [drange]
 
-        while drange > datetime.timedelta(1):
-            eps.append(drange/self.delta_t)
-            drange /= self.delta_t
+            while drange > datetime.timedelta(1):
+                eps.append(drange/self.delta_t)
+                drange /= self.delta_t
 
-        for e in range(len(eps)):
-            eps[e] = self.round_days(eps[e])
+            for e in range(len(eps)):
+                eps[e] = self.round_days(eps[e])
+
+        else:
+            drange = self.data.index[-1] - self.data.index[0]
+            eps = [drange]
+
+            while drange > 1:
+                eps.append(round(drange/self.delta_t))
+                drange /= self.delta_t
 
         eps = np.array(eps)
         eps = eps[eps < self.max_eps]
         eps = np.unique(eps)
 
         return eps
-
+    
 
     def calc_x(self, colname='logreturn'):
         '''
@@ -108,6 +94,33 @@ class DataHandler():
         X = np.array(X, dtype=object)
     
         return X
+    
+
+    def get_data(self):
+        '''
+        Return calculated increments with different delta_ts, and the logarithm of delta_t. 
+        '''
+        return self.X, self.eps
+
+
+    def get_df(self):
+        '''
+        Returns the input data in dataframe format. 
+        '''
+        return self.data
+    
+
+    def round_days(self, timedelta):
+        '''
+        Rounds a timedelta value to the nearest day. 
+        '''
+        total_seconds = timedelta.total_seconds()
+        
+        s = 86400
+        
+        days = math.ceil(total_seconds/s)
+        
+        return days
     
 
     def plot_x_diff(self):
