@@ -11,8 +11,8 @@ from .multifractal import Multifractal
 
 
 class MethodOfMoments(Multifractal):
-    def __init__(self, M, b=2, support_endpoints=[0,1], q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, iter=0, mu=[1], P=[], r_type="", loc=0, scale=1, drift=1):
-        super().__init__(M, b, support_endpoints, E, k, mu, P, r_type, loc, scale)
+    def __init__(self, M_type, M=[0.6,0.4], b=2, support_endpoints=[0,1], q=[-5,5], gran=0.1, analytic=False, X=np.array([]), delta_t=np.array([]), E=1, k=0, iter=0, mu=[1], P=[], r_type="", loc=0, scale=1, drift=1):
+        super().__init__(M, M_type, b, support_endpoints, E, k, mu, P, r_type, loc, scale)
 
         self.q = q
         self.gran = gran 
@@ -191,7 +191,6 @@ class MethodOfMoments(Multifractal):
         #TODO better approximation for H.
         L = list(self.tau_q.values())
         i = L.index(min(L, key=lambda x: abs(x - 0)))
-        print(list(self.tau_q.keys())[i])
         return 1 / list(self.tau_q.keys())[i]
     
 
@@ -228,7 +227,7 @@ class MethodOfMoments(Multifractal):
         f_alpha_data = self.f_alpha['f']
         H = self.H
 
-        params, covariance = curve_fit(lambda alpha, alpha_0: self.f_P(alpha, alpha_0, H), alpha_data, f_alpha_data)
+        params, _ = curve_fit(lambda alpha, alpha_0: self.f_P(alpha, alpha_0, H), alpha_data, f_alpha_data)
 
         return params[0]  
     

@@ -12,8 +12,9 @@ class Multifractal():
     Plotting is only supported with E=1. The values of the measure is stored in mu, 
     and k denotes the number of iterations for the cascade for a given measure. 
     '''
-    def __init__(self, M, b=2, support_endpoints=[0,1], E=1, k=0, mu=[1], P=[], r_type="", scale=1, loc=0, plot=True):
+    def __init__(self, M_type, M=[0.6,0.4], b=2, support_endpoints=[0,1], E=1, k=0, mu=[1], P=[], r_type="", scale=1, loc=0, plot=True):
         self.b = b
+        self.M_type = M_type
         self.M = self.set_M(M)
         self.E = E
         self.k = k
@@ -29,20 +30,17 @@ class Multifractal():
     
 
     def __str__(self):
-        #TODO multifractal current model prints out multiplier, base, support.
-        return f"{self.mu}"
+        return f"Multifractal measure with {self.M_type} multipliers {self.M}, with base {self.b}, on a support of {self.support_endpoints}"
     
 
     def set_M(self, M):
-        if M in ['lognormal']:
-            return M
-        elif isinstance(M, list):
+        if self.M_type == 'binomial' or self.M_type == 'multinomial':
             if sum(M) == 1:
                 return np.array(M, dtype='f')
             else:
                 raise ValueError("Multipliers do not add to 1")
         else:
-            raise ValueError("Not a valid multiplier")
+            return ""
         
         
     def set_eps(self):
@@ -86,16 +84,17 @@ class Multifractal():
         Draws a single multiplier from a multinomial distribution with probabilities P. 
         '''
         return np.random.choice(M,size=1,p=P)[0]
-    
-    #TODO consolidate random measure funcitonality
 
-    def draw_multiplier_random(self, mu, sigma):
+
+    def draw_multiplier_random(self):
         '''
         Draws vector of multipliers of size self.b from a given distribution. Lognormal 
         first draws from a normal and transforms according to the rule M = e^-V*ln(b)
         '''
-        if self.M == 'lognormal':
-            V = np.random.normal(mu, sigma, size=self.b)
+        #TODO add other multiplier families. 
+        #TODO add canonical constraint checker. 
+        if self.M_type == 'lognormal':
+            V = np.random.normal(self.loc, self.scale, size=self.b)
 
             M = np.exp(-V*np.log(self.b))
 
@@ -140,40 +139,36 @@ class Multifractal():
         return temp
     
 
-    def multiply_measure_random(self, r_type):
+    def multiply_measure_random(self):
         '''
         Multiplies the measure in each cell of interval with a random set of multipliers, 
         depending on r_type. 'Cons' is conservative, 'canon' is canonical. 
         '''
-        #TODO add other multiplier families. 
         temp = []
         for i in range(0,len(self.mu),self.b):
             interval = self.mu[i:i+self.b]
-            if r_type == 'cons':
+            if self.r_type == 'cons':
                 M = self.conservative()
-            elif self.M == 'lognormal':
-                M = self.draw_multiplier_random(self.loc, self.scale)
-            elif r_type == 'canon':
+            elif self.r_type == 'canon':
                 M = self.canonical()
+            elif self.M_type != 'binomial' or self.M_type != 'multinomial':
+                M = self.draw_multiplier_random()
             temp += self.multiply_measure(M, interval)
         return temp
         
     
     def iterate(self, k):
         '''
-        Does k iterations of the cascade, then Plots the resulting measure. 
+        Does k iterations of the cascade, then plots the resulting measure. 
         '''
-        #TODO make this more efficinet
         while k > 0:
             self.set_eps()
             self.set_support()
-            if self.P.size > 0:
-                temp = self.multiply_measure_random(self.r_type)
-            elif isinstance(self.M, str) and self.M in ['lognormal']:
-                temp = self.multiply_measure_random(self.r_type)
+            if self.M_type not in ['binomial', 'multinomial']:
+                self.mu = np.array(self.multiply_measure_random())
             else:
-                temp = self.multiply_measure(self.M, self.mu)
-            self.mu = np.array(temp)
+                self.mu = np.array(self.multiply_measure(self.M, self.mu))
+            print(np.sum(self.mu))
             k -= 1
         if k <= 10 and self.plot == True:
             self.plot_density()

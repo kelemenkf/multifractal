@@ -22,12 +22,30 @@ class Simulator():
         self.subordinated = self.set_subordinated()
         self.n = n
 
+
+    def set_subordinator(self):
+        '''
+        Instantiates a multiplicative multifractal measure using lognormal multipliers,
+        and loc and scale parameters, with support [0,T]. This is the model for trading time.  
+        '''
+
+        theta = Multifractal('lognormal', loc=self.loc, scale=self.scale, plot=False, support_endpoints=[0, self.T])
+        return theta
+
+
+    def set_subordinated(self):
+        if self.sim_type == 'mmar_m' or 'bm':
+            return BrownianMotion(drift=self.drift, t=self.T)
+        elif self.sim_type == 'mmar' or 'fbm':
+            return FractionalBrownianMotion(hurst=self.H, t=self.T)
+
     
     def get_increment(self, X):
         '''
         Returns the first difference of a vector. 
         '''
         return np.diff(X)
+
 
     def sim_bm(self, n):
         times = self.subordinated.times(n)
@@ -67,23 +85,6 @@ class Simulator():
 
         return (s*mu_increment, times)
     
-
-    def set_subordinator(self):
-        '''
-        Instantiates a multiplicative multifractal measure using lognormal multipliers,
-        and loc and scale parameters, with support [0,T]. This is the model for trading time.  
-        '''
-
-        theta = Multifractal('lognormal', loc=self.loc, scale=self.scale, plot=False, support_endpoints=[0, self.T])
-        return theta
-
-
-    def set_subordinated(self):
-        if self.sim_type == 'mmar_m' or 'bm':
-            return BrownianMotion(drift=self.drift, t=self.T)
-        elif self.sim_type == 'mmar' or 'fbm':
-            return FractionalBrownianMotion(hurst=self.H, t=self.T)
-
 
     def plot_mmar(self):
         '''
