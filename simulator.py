@@ -43,15 +43,7 @@ class Simulator():
             return BrownianMotion(drift=self.drift, scale=self.diffusion, t=self.T)
         elif self.sim_type == 'mmar' or 'fbm':
             return FractionalBrownianMotion(hurst=self.H, t=self.T)
-
-    
-    def get_increment(self, X, e):
-        '''
-        Returns the first difference of a vector. 
-        '''
-        diff = X[e:X.size:e] - X[:X.size-e:e]
-        return diff
-
+        
 
     def sim_bm(self, n):
         '''
@@ -76,7 +68,9 @@ class Simulator():
         #TODO drift for FBM
         #TODO README for the reason for the number of iterations. 
         self.subordinator.iterate(self.k)
+
         mu = self.subordinator.get_measure(self.dt_scale)
+
         mu_increment = np.sqrt(mu)
 
         mu_increment_size = mu_increment.size
@@ -89,7 +83,9 @@ class Simulator():
             self.sim_type = 'fbm'
 
         s, times = self.sim_bm(mu_increment_size)
-        s = self.get_increment(s, self.dt_scale)
+        s = np.diff(s)
+
+        print(mu_increment_size, np.sum(mu), s.size, self.dt_scale)
 
         #Reset it because an instance of Multifractal keeps track of k. 
         self.subordinator = self.set_subordinator()
@@ -105,7 +101,7 @@ class Simulator():
         cache = (self.T, self.dt_scale)
 
         #Sets k so it can produce at least the number of increments as given in n.
-        self.k = math.ceil(math.log(n, 2))
+        self.k = math.ceil(math.log(n*dt, self.subordinator.b))
 
         #Sets T so the max time is the same as the minimum required to produce n. 
         self.T = self.subordinator.b**self.k
@@ -114,7 +110,8 @@ class Simulator():
         self.dt_scale = dt
 
         #Passes the parameters to the return process. 
-        self.set_subordinated()
+        self.subordinated = self.set_subordinated()
+        self.subordinators = self.set_subordinator()
         
         y, _ = self.sim_mmar()
         res = np.append(res, y)
@@ -123,7 +120,8 @@ class Simulator():
         self.T = cache[0]
         self.k = math.ceil(math.log(self.T, 2))
         self.dt_scale = cache[1]
-        self.set_subordinated()
+        self.subordinated = self.set_subordinated()
+        self.subordinator = self.set_subordinator()
 
         return res[:n]
 
@@ -132,10 +130,9 @@ class Simulator():
         '''
         Plots a realization of a path of MMAR (cumulative returns). 
         '''
-        y, _ = self.sim_mmar()
+        y, x = self.sim_mmar()
         y = np.cumsum(y)
-        x = range(y.size)
-        plt.plot(x, y)
+        plt.plot(x[1:], y)
 
     
     def plot_mmar_diff(self):
@@ -169,7 +166,7 @@ class Simulator():
         Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
         '''
         y, x = self.sim_bm(self.n)
-        y = self.get_increment(y, self.dt_scale)
+        y = np.diff(y)
         plt.plot(x[1:], y)
         plt.xlabel('t') 
         plt.ylabel('X(t)')
@@ -187,7 +184,7 @@ class Simulator():
 
             if self.sim_type in ['mmar_m', 'mmar']:
                 y, _ = self.sim_mmar()
-                y = self.get_increment(y, increments[i])
+                y = self.np.diff(y)
             elif self.sim_type in ['bm', 'fbm']:
                 y, _ = self.sim_bm(self.n)
                 y = np.diff(y)
