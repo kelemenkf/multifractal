@@ -30,7 +30,6 @@ class Simulator():
         Instantiates a multiplicative multifractal measure using lognormal multipliers,
         and loc and scale parameters, with support [0,T]. This is the model for trading time.  
         '''
-
         theta = Multifractal('lognormal', loc=self.loc, scale=self.scale, plot=False, support_endpoints=[0, self.T])
         return theta
 
@@ -71,13 +70,13 @@ class Simulator():
         Simulates one path of a multifractal price series. If sim_type is 'mmar_m', 
         it simulates the martingale version using a standard Brwonian motion. If sim_type 
         is 'mmar' it simulates the MMAR using a fractional Brownian motion with an H supplied
-        to the __init__ function. 
+        to the __init__ function. By default it produces increments as defined by self.dt_scale
         '''
         #TODO check if this makes sense in the case of FBM. 
         #TODO drift for FBM
         #TODO README for the reason for the number of iterations. 
         self.subordinator.iterate(self.k)
-        mu = self.subordinator.get_measure()
+        mu = self.subordinator.get_measure(self.dt_scale)
         mu_increment = np.sqrt(mu)
 
         mu_increment_size = mu_increment.size
@@ -99,20 +98,31 @@ class Simulator():
         return (s*mu_increment, times)
 
 
-    def sim_mmar_n(self, n):
+    def sim_mmar_n(self, n, dt):
         res = np.array([])
 
-        cache = self.T
+        #Remembers the parameters of the instantiated object.
+        cache = (self.T, self.dt_scale)
 
-        self.k = math.ceil(math.log(n*self.dt_scale, 2))
+        #Sets k so it can produce at least the number of increments as given in n.
+        self.k = math.ceil(math.log(n, 2))
+
+        #Sets T so the max time is the same as the minimum required to produce n. 
         self.T = self.subordinator.b**self.k
+
+        #Sets Δt so it produces realizations at the increments we want. 
+        self.dt_scale = dt
+
+        #Passes the parameters to the return process. 
         self.set_subordinated()
         
         y, _ = self.sim_mmar()
         res = np.append(res, y)
 
-        self.T = cache
+        #Resets the original parameters passed at object instantiation.  
+        self.T = cache[0]
         self.k = math.ceil(math.log(self.T, 2))
+        self.dt_scale = cache[1]
         self.set_subordinated()
 
         return res[:n]
