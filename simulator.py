@@ -97,7 +97,26 @@ class Simulator():
         self.sim_type = temp
 
         return (s*mu_increment, times)
-    
+
+
+    def sim_mmar_n(self, n):
+        res = np.array([])
+
+        cache = self.T
+
+        self.k = math.ceil(math.log(n*self.dt_scale, 2))
+        self.T = self.subordinator.b**self.k
+        self.set_subordinated()
+        
+        y, _ = self.sim_mmar()
+        res = np.append(res, y)
+
+        self.T = cache
+        self.k = math.ceil(math.log(self.T, 2))
+        self.set_subordinated()
+
+        return res[:n]
+
 
     def plot_mmar(self):
         '''
@@ -146,7 +165,7 @@ class Simulator():
         plt.ylabel('X(t)')
 
 
-    def plot_dist(self,increments=[1,7,30,180]):
+    def plot_dist(self, n, increments=[1,7,30,180]):
         '''
         Plots the return distribution of a single realization of an mmar.
         '''
