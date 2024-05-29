@@ -7,7 +7,6 @@ import matplotlib.animation as animation
 class Multifractal():
     '''
     Base class for a multifractal measure created using a multiplicative cascasde. 
-    The cascade is b-nomial (e.g. binomial,trinomial etc.) with the b multipliers defined in M. 
     The set supporting the measure is Euclidean with the dimension E. 
     Plotting is only supported with E=1. The values of the measure is stored in mu, 
     and k denotes the number of iterations for the cascade for a given measure. 
@@ -58,11 +57,15 @@ class Multifractal():
         self.support = np.linspace(self.support_endpoints[0],self.support_endpoints[1],self.b**self.k,endpoint=False)
     
 
-    def get_measure(self):
+    def get_measure(self, dt):
         '''
         Return measure values for all box of size self.eps.
         '''
-        return self.mu
+        measure = []
+        for i in range(0,self.mu.size,dt):
+            measure.append(sum(self.mu[i:i+dt]))
+        print(sum(measure))
+        return np.array(measure)
     
 
     def update_P(self, M0, P, M):
@@ -84,6 +87,13 @@ class Multifractal():
         Draws a single multiplier from a multinomial distribution with probabilities P. 
         '''
         return np.random.choice(M,size=1,p=P)[0]
+    
+
+    def check_canonical_constraint(self):
+        '''
+        Checks if a random canonical measure satisifes the constraint of E[ΣM] = 1.
+        '''
+        pass
 
 
     def draw_multiplier_random(self):
