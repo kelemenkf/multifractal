@@ -64,7 +64,6 @@ class Multifractal():
         measure = []
         for i in range(0,self.mu.size,dt):
             measure.append(sum(self.mu[i:i+dt]))
-        print(sum(measure))
         return np.array(measure)
     
 

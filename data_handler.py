@@ -76,11 +76,10 @@ class DataHandler():
     def calc_x(self, colname='logreturn'):
         '''
         Calculates the increments of the series X(t), with different values of
-        delta_t as determined by self.eps. It does this both in absolute value for the 
-        partition function, and just with a regular difference for the plot. 
+        delta_t as determined by self.eps. 
         '''
         data = self.data[colname].to_numpy()
-        print(self.eps)
+        
         X = []
         for e in self.eps:
             diff = data[e:data.size:e] - data[:data.size-e:e]

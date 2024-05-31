@@ -57,7 +57,7 @@ class Simulator():
             return (self.subordinated.sample(n), times)
 
 
-    def sim_mmar(self):
+    def sim_mmar(self, check=False):
         '''
         Simulates one path of a multifractal price series. If sim_type is 'mmar_m', 
         it simulates the martingale version using a standard Brwonian motion. If sim_type 
@@ -85,7 +85,9 @@ class Simulator():
         s, times = self.sim_bm(mu_increment_size)
         s = np.diff(s)
 
-        print(mu_increment_size, np.sum(mu), s.size, self.dt_scale)
+        if check:
+            cache = np.sum(self.subordinator.mu)
+            return cache
 
         #Reset it because an instance of Multifractal keeps track of k. 
         self.subordinator = self.set_subordinator()
@@ -172,25 +174,10 @@ class Simulator():
         plt.ylabel('X(t)')
 
 
-    def plot_dist(self, n, increments=[1,7,30,180]):
-        '''
-        Plots the return distribution of a single realization of an mmar.
-        '''
-        fig, axes = plt.subplots(len(increments), 1, sharex='row', figsize=(20, 40))
-        fig.subplots_adjust(hspace=0.5)
-
-        for i in range(len(increments)):
-            self.n = self.T // increments[i]
-
-            if self.sim_type in ['mmar_m', 'mmar']:
-                y, _ = self.sim_mmar()
-                y = self.np.diff(y)
-            elif self.sim_type in ['bm', 'fbm']:
-                y, _ = self.sim_bm(self.n)
-                y = np.diff(y)
-            bins = np.histogram(y, bins=math.ceil(np.sqrt(y.size)))  
-
-            axes[i].hist(y, bins[1])
-            axes[i].set_title(f"Return distribution at scale of {increments[i]} days.")
-            axes[i].set_xlabel("X(t)")
-            axes[i].set_ylabel("Density")
+    def constraint_test(self, n=100):
+        M = []
+        for i in range(n):
+            print(i)
+            mu = self.sim_mmar(check=True)
+            M.append(mu)
+        return np.mean(np.array(M))
