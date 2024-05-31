@@ -349,6 +349,6 @@ class Multifractal():
         cdf = self.cdf()
         
         fig, ax = plt.subplots()
-        plot = ax.bar(np.linspace(0,1,self.b**self.k,endpoint=False),cdf,1/self.b**self.k,align='edge')
+        plot = ax.bar(np.linspace(self.support_endpoints[0],self.support_endpoints[1],self.b**self.k,endpoint=False),cdf,self.support_endpoints[1]/self.b**self.k,align='edge')
 
 

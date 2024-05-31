@@ -131,9 +131,9 @@ class Simulator():
 
     def get_trading_time(self):
         '''
-        Returns the simulated density of the trading time.
+        Returns the simulated path of trading time (the cdf of the multifractal measure).
         '''
-        return self.subordinator.mu, np.flip([1/self.subordinator.b**i for i in range(self.k+1)])
+        return self.subordinator.cdf()
 
 
     def plot_mmar(self):

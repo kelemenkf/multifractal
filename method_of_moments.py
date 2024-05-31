@@ -28,7 +28,8 @@ class MethodOfMoments(Multifractal):
             self.tau_q = self.calc_tau_q_multinomial()
         self.f_alpha = self.legendre()
         self.H = self.get_H()
-        self.alpha_0 = self.fit_spectrum()
+        self.alpha_0 = self.fit_P_spectrum()
+        self.theta_lambda = self.fit_theta_spectrum()
         if drift != None and drift in self.delta_t:
             self.drift = self.get_drift(drift)
         # else:
@@ -226,15 +227,14 @@ class MethodOfMoments(Multifractal):
         return 1 - ((alpha - alpha_0)**2 / (4 * H * (alpha_0 - H)))
     
 
-    def f_theta(self, alpha):
+    def f_theta(self, alpha, mean):
         '''
-        Defines the functional form of the spectrum of the price process.
+        Defines the functional form of the spectrum of trading time.
         '''
-        mean = self.get_lambda()
-        return 1 - ((alpha - mean)**2 / 4* (mean - 1))
+        return 1 - ((alpha - mean)**2 / (4 * (mean - 1)))
 
 
-    def fit_spectrum(self):
+    def fit_P_spectrum(self):
         '''
         Fits the spectrum function to the data obtained by the Legendre transform. 
         Returns alpha0, the maximum value of the parabola and the most likely exponent
@@ -249,17 +249,28 @@ class MethodOfMoments(Multifractal):
         return params[0]  
     
 
+    def fit_theta_spectrum(self):
+
+        alpha_data = self.f_alpha['alpha']
+        f_alpha_data = self.f_alpha['f']   
+
+        params, _ = curve_fit(lambda alpha, mean: self.f_theta(alpha, mean), alpha_data, f_alpha_data)
+
+        return params[0]
+    
+
     def plot_fitted_f_alpha(self):
         fig, axes = plt.subplots(1, 2)
 
         alpha_data = self.f_alpha['alpha']
-        alpha_theta_data = alpha_data
+        alpha_theta_data = alpha_data / self.H
 
         f_P_alpha_data = self.f_P(alpha_data, alpha_0=self.alpha_0, H=self.H)
-        f_theta_alpha_data = self.f_theta(alpha_theta_data)
+        f_theta_alpha_data = self.f_theta(alpha_theta_data, mean=self.get_lambda())
 
         axes[1].scatter(self.f_alpha['alpha'], self.f_alpha['f'])
         axes[1].plot(alpha_data, f_P_alpha_data)
         axes[1].set_title('Estimated values of the specturm from the Legendre transfrom and the fitted parabola')
         axes[0].plot(alpha_theta_data, f_theta_alpha_data)
+        axes[0].set_title('Estimated spectrum of trading time')
 
