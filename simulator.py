@@ -67,6 +67,8 @@ class Simulator():
         #TODO check if this makes sense in the case of FBM. 
         #TODO drift for FBM
         #TODO README for the reason for the number of iterations. 
+        self.subordinator = self.set_subordinator()
+
         self.subordinator.iterate(self.k)
 
         mu = self.subordinator.get_measure(self.dt_scale)
@@ -90,7 +92,6 @@ class Simulator():
             return cache
 
         #Reset it because an instance of Multifractal keeps track of k. 
-        self.subordinator = self.set_subordinator()
         self.sim_type = temp
 
         return (s*mu_increment, times)
@@ -126,6 +127,13 @@ class Simulator():
         self.subordinator = self.set_subordinator()
 
         return res[:n]
+    
+
+    def get_trading_time(self):
+        '''
+        Returns the simulated density of the trading time.
+        '''
+        return self.subordinator.mu, np.flip([1/self.subordinator.b**i for i in range(self.k+1)])
 
 
     def plot_mmar(self):
@@ -174,7 +182,17 @@ class Simulator():
         plt.ylabel('X(t)')
 
 
+    def plot_trading_time(self):
+        '''
+        Plots a sample path of trading time, that is the cdf of the subordinator.
+        '''
+        self.subordinator.plot_cdf()
+
+
     def constraint_test(self, n=100):
+        '''
+        Tests if the measure of trading equals 1 on average. 
+        '''
         M = []
         for i in range(n):
             print(i)
