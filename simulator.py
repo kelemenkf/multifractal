@@ -3,6 +3,8 @@ import math
 import matplotlib.pyplot as plt
 from stochastic.processes.continuous import BrownianMotion
 from stochastic.processes.continuous import FractionalBrownianMotion
+from stochastic.processes.noise import FractionalGaussianNoise
+from stochastic.processes.noise import GaussianNoise
 
 from .multifractal import Multifractal
 
@@ -39,9 +41,9 @@ class Simulator():
         Sets the subordinated process for the different simulated models. If it's bm or fbm 
         only this function will run. 
         '''
-        if self.sim_type == 'mmar_m' or 'bm':
+        if self.sim_type in ['mmar_m', 'bm']:
             return BrownianMotion(drift=self.drift, scale=self.diffusion, t=self.T)
-        elif self.sim_type == 'mmar' or 'fbm':
+        elif self.sim_type in ['mmar', 'fbm']:
             return FractionalBrownianMotion(hurst=self.H, t=self.T)
         
 
@@ -157,7 +159,11 @@ class Simulator():
         plt.ylabel('X(t)')
 
 
-    def plot_bm(self):
+    def get_stats(self, x):
+        return np.mean(x), np.std(x)
+    
+
+    def plot_process(self):
         '''
         Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
         '''
@@ -171,12 +177,18 @@ class Simulator():
         plt.ylabel('W(t)')
 
 
-    def plot_bm_diff(self):
+    def plot_noise(self):
         '''
         Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
         '''
         y, x = self.sim_bm(self.n)
         y = np.diff(y)
+        mu, sigma = self.get_stats(y)
+        print(f"Mean: {mu}, Standard deviation: {sigma}")
+        if self.sim_type == 'bm':
+            plt.title('Gaussian Noise')
+        elif self.sim_type == 'fbm':
+            plt.title('Fractional Gaussian Noise')
         plt.plot(x[1:], y)
         plt.xlabel('t') 
         plt.ylabel('X(t)')
@@ -199,3 +211,17 @@ class Simulator():
             mu = self.sim_mmar(check=True)
             M.append(mu)
         return np.mean(np.array(M))
+    
+
+    def sim_price(self, P0=10):
+        x, _ = self.sim_mmar()
+        x = np.cumsum(x)
+        log_p0 = math.log(P0)
+        log_p = x + log_p0
+        return np.exp(log_p)
+    
+
+    def plot_price(self, P0):
+        y = self.sim_price(P0)
+        x = range(len(y))
+        plt.plot(x, y)
