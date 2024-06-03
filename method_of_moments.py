@@ -159,7 +159,7 @@ class MethodOfMoments(Multifractal):
         '''
         Legendre transform the tau(q) function and returns the spectrum f(alpha).
         '''
-        #TODO check weird f values around 1.
+        #TODO check weird f values around 1. This may be due to inversion. 
         alphas = self.discrete_slopes()
         tau = list(self.tau_q.values())
         q = list(self.tau_q.keys())
@@ -250,7 +250,11 @@ class MethodOfMoments(Multifractal):
     
 
     def fit_theta_spectrum(self):
-
+        '''
+        Fits the spectrum of the trading time obtained by the Legendre transform. 
+        Should return lambda. 
+        #TODO why doesn'it ? 
+        '''
         alpha_data = self.f_alpha['alpha']
         f_alpha_data = self.f_alpha['f']   
 
@@ -260,6 +264,10 @@ class MethodOfMoments(Multifractal):
     
 
     def plot_fitted_f_alpha(self):
+        '''
+        Creates plots displaying the estimated spectrum and the fitted parabola of the compound process, 
+        and the fitted parabola of the subordinator. 
+        '''
         fig, axes = plt.subplots(1, 2)
 
         alpha_data = self.f_alpha['alpha']
