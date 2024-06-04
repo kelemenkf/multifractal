@@ -5,9 +5,10 @@ import matplotlib.pyplot as plt
 
 
 class DataHandler():
-    def __init__(self, data, obs_data=True, delta_t=1.1, max_eps=183):
+    def __init__(self, data, obs_data=True, delta_t=1.1, max_eps=183, scale='daily'):
         self.obs_data = obs_data
         self.data = data
+        self.scale = scale
         if obs_data:
             self.get_logprice()
             self.get_logreturns()
@@ -49,11 +50,13 @@ class DataHandler():
         different increments in the partition function. Self.max_eps determines the largest
         value of the increment which defaults to 183, i.e., half a year. 
         '''
-        #TODO change this so the lowest frequency can be not just daily but anything. 
         drange = self.drange
         eps = [drange]
 
-        limit = datetime.timedelta(1) if self.obs_data else 1
+        if self.scale == 'daily':
+            limit = datetime.timedelta(1) if self.obs_data else 1
+        elif self.scale == 'hf':
+            limit = datetime.timedelta(minutes=1) if self.obs_data else 1
 
         while drange > limit:
             eps.append(drange/self.delta_t)
@@ -79,7 +82,7 @@ class DataHandler():
         delta_t as determined by self.eps. 
         '''
         data = self.data[colname].to_numpy()
-        
+
         X = []
         for e in self.eps:
             diff = data[e:data.size:e] - data[:data.size-e:e]

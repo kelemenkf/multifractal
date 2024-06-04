@@ -129,13 +129,6 @@ class Simulator():
         self.subordinator = self.set_subordinator()
 
         return res[:n]
-    
-
-    def get_trading_time(self):
-        '''
-        Returns the simulated path of trading time (the cdf of the multifractal measure).
-        '''
-        return self.subordinator.cdf()
 
 
     def plot_mmar(self):
@@ -160,14 +153,25 @@ class Simulator():
 
 
     def get_stats(self, x):
+        '''
+        Returns the mean and standard deviation of the array x. 
+        '''
         return np.mean(x), np.std(x)
 
 
     def squared_displacement(self, x0, xt):
+        '''
+        Returns the squared siplacement of a stochastic process at xt, if the process
+        started at x0.
+        '''
         return (xt-x0)**2
     
 
     def msd(self, n):
+        '''
+        Calculates the mean squared displacement of a process by simulating it n times
+        calcualting the squared displacement each time and return the mean of that array. 
+        '''
         MSD = []
         for i in range(n):
             y, x = self.sim_bm(self.n)
@@ -209,6 +213,13 @@ class Simulator():
         plt.ylabel('X(t)')
 
 
+    def get_trading_time(self):
+        '''
+        Returns the simulated path of trading time (the cdf of the multifractal measure).
+        '''
+        return self.subordinator.cdf()
+
+
     def plot_trading_time(self):
         '''
         Plots a sample path of trading time, that is the cdf of the subordinator.
@@ -218,7 +229,7 @@ class Simulator():
 
     def constraint_test(self, n=100):
         '''
-        Tests if the measure of trading equals 1 on average. 
+        Tests if the measure of trading time equals 1 on average. 
         '''
         M = []
         for i in range(n):
@@ -229,6 +240,9 @@ class Simulator():
     
 
     def sim_price(self, P0=10):
+        '''
+        Simulates a path of price instead of return, with P0 being the starting value. 
+        '''
         x, _ = self.sim_mmar()
         x = np.cumsum(x)
         log_p0 = math.log(P0)
@@ -237,6 +251,9 @@ class Simulator():
     
 
     def plot_price(self, P0):
+        '''
+        Plots a simulated price path with P0 being the starting value. 
+        '''
         y = self.sim_price(P0)
         x = range(len(y))
         plt.plot(x, y)

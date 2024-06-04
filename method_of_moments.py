@@ -266,7 +266,7 @@ class MethodOfMoments(Multifractal):
     def plot_fitted_f_alpha(self):
         '''
         Creates plots displaying the estimated spectrum and the fitted parabola of the compound process, 
-        and the fitted parabola of the subordinator. 
+        and the fitted parabola of the subordinator (trading time). 
         '''
         fig, axes = plt.subplots(1, 2)
 
