@@ -62,9 +62,12 @@ class DataHandler():
             eps.append(drange/self.delta_t)
             drange /= self.delta_t
 
-        if self.obs_data:
+        if self.obs_data and self.scale == 'daily':
             for e in range(len(eps)):
                 eps[e] = self.round_days(eps[e])
+        elif self.obs_data and self.scale == 'hf':
+            for e in range(len(eps)):
+                eps[e] = self.round_minutes(eps[e])
         else:
             eps = np.rint(eps)
             eps = np.array(eps, dtype=np.int_)
@@ -119,6 +122,19 @@ class DataHandler():
         days = math.ceil(total_seconds/s)
         
         return days
+
+
+    def round_minutes(self, timedelta):
+        '''
+        Rounds a timedelta value to the nearest minute. 
+        '''
+        total_seconds = timedelta.total_seconds()
+
+        s = 60
+
+        minutes = math.ceil(total_seconds/s)
+
+        return minutes
     
 
     def plot_x_diff(self):
@@ -126,6 +142,7 @@ class DataHandler():
         Plots the increments X(t) over the whole length of the dataset with delta_t of 
         1 day. 
         '''
+        print(self.data.index[1:])
         plt.plot(self.data.index[1:], self.X[0])
     
 
