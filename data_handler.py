@@ -137,18 +137,21 @@ class DataHandler():
         return minutes
     
 
-    def plot_x_diff(self):
+    def plot_x_diff(self, save=False, path="", name=""):
         '''
         Plots the increments X(t) over the whole length of the dataset with delta_t of 
         1 day. 
         '''
-        print(self.data.index[1:])
         plt.plot(self.data.index[1:], self.X[0])
+        if save: 
+            plt.savefig(path + "/" + name)
     
 
-    def plot_x(self):
+    def plot_x(self, save=False, path="", name=""):
         '''
         Plots X(t) with increments of 1 day. 
         '''
         plt.plot(self.data.index[1:], np.cumsum(self.X[0]))
+        if save:
+            plt.savefig(path + "/" + name)
         
