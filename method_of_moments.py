@@ -102,8 +102,8 @@ class MethodOfMoments(Multifractal):
             offsets = np.zeros(len(self.q_range))
         for i in range(len(self.q_range)):
             plt.plot(np.log(x), np.log(data[i,:]) - offsets[i], label=f"{self.q_range[i]} moment")
-        plt.xlabel("log(eps)")
-        plt.ylabel("log(S)")
+        plt.xlabel("$ln(ε)$")
+        plt.ylabel("$ln(S)$")
         plt.legend()
         if save:
             plt.savefig(path + "/" + name)
@@ -141,8 +141,8 @@ class MethodOfMoments(Multifractal):
         Plots the moment scaling function. 
         '''
         plt.plot(self.tau_q.keys(), self.tau_q.values())
-        plt.xlabel('q')
-        plt.ylabel('tau')
+        plt.xlabel('$q$')
+        plt.ylabel('$τ$')
         if save:
             plt.savefig(path + "/" + name)
             plt.close()
@@ -284,6 +284,8 @@ class MethodOfMoments(Multifractal):
 
         axes[1].scatter(self.f_alpha['alpha'], self.f_alpha['f'])
         axes[1].plot(alpha_data, f_P_alpha_data)
+        axes[1].set_xlable("$α$")
+        axes[1].set_xlable("$f$")
         axes[1].set_title('Estimated values of the specturm from the Legendre transfrom and the fitted parabola')
         axes[0].plot(alpha_theta_data, f_theta_alpha_data)
         axes[0].set_title('Estimated spectrum of trading time')

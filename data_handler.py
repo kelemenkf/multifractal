@@ -143,6 +143,8 @@ class DataHandler():
         1 day. 
         '''
         plt.plot(self.data.index[1:], self.X[0])
+        plt.xlabel("$t$")
+        plt.ylabel("$ΔΧ(t)$")
         if save: 
             plt.savefig(path + "/" + name)
             plt.close()
@@ -154,6 +156,9 @@ class DataHandler():
         '''
         print(self.data.index[1:])
         plt.plot(self.data.index[1:], np.cumsum(self.X[0]))
+        plt.title("Cumulative returns")
+        plt.xlabel("$t$")
+        plt.ylabel("$X(t)$")
         if save:
             plt.savefig(path + "/" + name)
             plt.close()

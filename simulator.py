@@ -174,7 +174,7 @@ class Simulator():
         '''
         MSD = []
         for i in range(n):
-            y, x = self.sim_bm(self.n)
+            y, _ = self.sim_bm(self.n)
             sd = self.squared_displacement(y[0], y[-1])
             MSD.append(sd)
         return np.mean(MSD)
@@ -185,8 +185,6 @@ class Simulator():
         Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
         '''
         y, x = self.sim_bm(self.n)
-        msd = self.squared_displacement(y[0], y[-1])
-        print(f"Squared displacement: {msd}")
         if self.sim_type == 'bm':
             plt.title('Brownian Motion')
         elif self.sim_type == 'fbm':
