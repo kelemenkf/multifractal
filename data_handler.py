@@ -19,7 +19,7 @@ class DataHandler():
         self.X = self.calc_x()
 
 
-    def get_logprice(self, colname='Close'):
+    def get_logprice(self, colname='Price'):
         '''
         Calculates the logprice of a price series. Colname dentoes the name of the
         price column with 'Close' being a default from Yahoo finance. 
@@ -145,13 +145,16 @@ class DataHandler():
         plt.plot(self.data.index[1:], self.X[0])
         if save: 
             plt.savefig(path + "/" + name)
+            plt.close()
     
 
     def plot_x(self, save=False, path="", name=""):
         '''
         Plots X(t) with increments of 1 day. 
         '''
+        print(self.data.index[1:])
         plt.plot(self.data.index[1:], np.cumsum(self.X[0]))
         if save:
             plt.savefig(path + "/" + name)
+            plt.close()
         

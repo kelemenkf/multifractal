@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from scipy.optimize import curve_fit
 
-mpl.rcParams['figure.figsize'] = (20,10)
+mpl.rcParams['figure.figsize'] = (15,5)
 
 from .multifractal import Multifractal
 
@@ -86,7 +86,7 @@ class MethodOfMoments(Multifractal):
             return np.flip(data[:,1:], axis=1)
                 
         
-    def partition_plot(self, renorm=False):
+    def partition_plot(self, renorm=False, save=False, path="", name=""):
         '''
         Plots the partition function for moments up until q (integers only) and for k iterations
         (trivial first one left out). 
@@ -105,6 +105,9 @@ class MethodOfMoments(Multifractal):
         plt.xlabel("log(eps)")
         plt.ylabel("log(S)")
         plt.legend()
+        if save:
+            plt.savefig(path + "/" + name)
+            plt.close()
 
 
     def get_slope(self, y, x):
@@ -133,13 +136,16 @@ class MethodOfMoments(Multifractal):
         return tau_q
     
         
-    def plot_tau_q(self):
+    def plot_tau_q(self, save=False, path="", name=""):
         '''
         Plots the moment scaling function. 
         '''
         plt.plot(self.tau_q.keys(), self.tau_q.values())
         plt.xlabel('q')
         plt.ylabel('tau')
+        if save:
+            plt.savefig(path + "/" + name)
+            plt.close()
 
 
     def discrete_slopes(self):
@@ -263,7 +269,7 @@ class MethodOfMoments(Multifractal):
         return params[0]
     
 
-    def plot_fitted_f_alpha(self):
+    def plot_fitted_f_alpha(self, save=False, path="", name=""):
         '''
         Creates plots displaying the estimated spectrum and the fitted parabola of the compound process, 
         and the fitted parabola of the subordinator (trading time). 
@@ -281,4 +287,8 @@ class MethodOfMoments(Multifractal):
         axes[1].set_title('Estimated values of the specturm from the Legendre transfrom and the fitted parabola')
         axes[0].plot(alpha_theta_data, f_theta_alpha_data)
         axes[0].set_title('Estimated spectrum of trading time')
+
+        if save:
+            fig.savefig(path + "/" + name)
+            plt.close(fig)
 
