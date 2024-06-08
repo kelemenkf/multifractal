@@ -104,6 +104,7 @@ class MethodOfMoments(Multifractal):
             plt.plot(np.log(x), np.log(data[i,:]) - offsets[i], label=f"{self.q_range[i]} moment")
         plt.xlabel("$ln(ε)$")
         plt.ylabel("$ln(S)$")
+        plt.title("Partition function")
         plt.legend()
         if save:
             plt.savefig(path + "/" + name)
@@ -247,8 +248,8 @@ class MethodOfMoments(Multifractal):
         Returns alpha0, the maximum value of the parabola and the most likely exponent
         for a given time interval. 
         '''
-        alpha_data = self.f_alpha['alpha']
-        f_alpha_data = self.f_alpha['f']
+        alpha_data = self.f_alpha['alpha'][::-1]
+        f_alpha_data = self.f_alpha['f'][::-1]
         H = self.H
 
         params, _ = curve_fit(lambda alpha, alpha_0: self.f_P(alpha, alpha_0, H), alpha_data, f_alpha_data)
@@ -262,8 +263,8 @@ class MethodOfMoments(Multifractal):
         Should return lambda. 
         #TODO why doesn'it ? 
         '''
-        alpha_data = self.f_alpha['alpha']
-        f_alpha_data = self.f_alpha['f']   
+        alpha_data = self.f_alpha['alpha'][::-1]
+        f_alpha_data = self.f_alpha['f'][::-1]
 
         params, _ = curve_fit(lambda alpha, mean: self.f_theta(alpha, mean), alpha_data, f_alpha_data)
 

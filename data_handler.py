@@ -143,6 +143,7 @@ class DataHandler():
         1 day. 
         '''
         plt.plot(self.data.index[1:], self.X[0])
+        plt.title("Returns")
         plt.xlabel("$t$")
         plt.ylabel("$ΔΧ(t)$")
         if save: 

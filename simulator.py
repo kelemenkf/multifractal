@@ -100,6 +100,10 @@ class Simulator():
 
 
     def sim_mmar_n(self, n, dt):
+        '''
+        Plots a realizationn of a path of MMAR. The whole path does not preserve the 
+        measure of trading time. 
+        '''
         res = np.array([])
 
         #Remembers the parameters of the instantiated object.
