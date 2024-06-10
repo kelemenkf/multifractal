@@ -16,6 +16,8 @@ class FluctuationAnalysis(Stationary):
         self.nu_max = nu_max
         self.nu = np.array(range(self.nu_min,self.nu_max))
         self.s = self.N // (self.b**self.nu)
+        self.spl_data = self.split_data(self.data)
+        self.spl_data_r = self.split_data(np.flip(self.data))
         self.alpha = self.calc_alpha()
 
 
@@ -28,7 +30,6 @@ class FluctuationAnalysis(Stationary):
 
     def mean_fluctuation(self):
         fa_2 = self.squared_fluctuation(self.spl_data) + self.squared_fluctuation(self.spl_data_r)
-        print(len(fa_2))
         mean = np.mean(fa_2)
         return np.sqrt(mean)
     
@@ -37,10 +38,18 @@ class FluctuationAnalysis(Stationary):
         fa = [self.mean_fluctuation()]
         for n in range(1, self.nu.size):
             self.i += 1
-            self.spl_data = self.split_data(self.diff_data) 
-            self.spl_data_r = self.split_data(np.flip(self.diff_data))
-            fa.append( self.mean_fluctuation()) 
+            self.spl_data = self.split_data(self.data) 
+            self.spl_data_r = self.split_data(np.flip(self.data))
+            fa.append(self.mean_fluctuation()) 
+        self.i = 0
+        self.spl_data = self.split_data(self.data)
+        self.spl_data_r = self.split_data(np.flip(self.data))
         return np.log(fa), np.log(self.s)
+
+
+    def plot_fa(self):
+        y, x = self.fluctuation_function()
+        plt.plot(x, y)
 
 
     def calc_alpha(self):
@@ -48,6 +57,7 @@ class FluctuationAnalysis(Stationary):
         x = sm.add_constant(x)
         model = sm.OLS(y, x)  
         result = model.fit()
-        return result.params[1]  
+        return result.params[1]
+
 
     

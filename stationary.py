@@ -11,7 +11,6 @@ class Stationary():
         self.s = self.N // (self.b**self.nu)
         self.i = 0
         self.spl_data = self.split_data(self.diff_data)
-        self.spl_data_r = self.split_data(self.diff_data_r)
 
     
     def split_data(self, data):
