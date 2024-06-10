@@ -40,8 +40,27 @@ class FluctuationAnalysis():
         '''
         return np.cumsum(self.demean_data(), axis=1)
     
+
+    def get_ranges(self):
+        '''
+        Returns the maximum minus the minimum of the deviate series in each range.
+        '''
+        return np.max(self.integrate_series(), axis=1) - np.min(self.integrate_series(), axis=1)
+
+
+    def get_std(self):
+        '''
+        Returns the standard deviation of the deviate series in each range. 
+        '''
+        return np.std(self.integrate_series(), axis=1)
     
 
     def rescaled_range(self):
-        pass
+        '''
+        Returns the rescaled range for each range in the time series. 
+        '''
+        return self.get_ranges() / self.get_std()
+
+
+    def average_rescaled_range(self):
 
