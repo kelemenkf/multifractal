@@ -11,7 +11,7 @@ class FluctuationAnalysis():
         self.data = data
         self.diff_data = np.diff(data)
         self.b = b
-        self.nu = np.array(list(range(1,nu)))
+        self.nu = np.array(list(range(0,nu+1)))
         self.N = self.diff_data.size
         self.s = self.N // (self.b**self.nu)
         self.i = 0
@@ -21,7 +21,7 @@ class FluctuationAnalysis():
     def split_data(self):
         '''
         Splits a time series of differences into self.nu, equidistant ranges,
-        and returns it as a self.nu x self.s matrix. 
+        and returns it as a sefl.b**self.nu x self.s matrix. 
         '''
         split_data = [self.diff_data[i:i+self.s[self.i]] for i in range(0,self.N,self.s[self.i])]
         if self.b**self.nu[self.i] * self.s[self.i] != self.N:
@@ -33,7 +33,7 @@ class FluctuationAnalysis():
     def demean_data(self):
         '''
         Subtracts the mean of ranges with size self.s from the correpsonding ranges. 
-        It returns self.nu x self.s matrix where in each row the data is equal to the original 
+        It returns seflfb.**self.nu x self.s matrix where in each row the data is equal to the original 
         data minus the mean of the data in that row. 
         '''
         means = np.mean(self.spl_data, axis=1)
@@ -44,33 +44,37 @@ class FluctuationAnalysis():
         '''
         Returns the profile (integrated series) of each of the demeaned ranges.
         '''
-        return np.cumsum(self.demean_data(), axis=1)
+        integrated_series = np.cumsum(self.demean_data(), axis=1)
+        return integrated_series
     
 
     def get_ranges(self):
         '''
         Returns the maximum minus the minimum of the deviate series in each range.
         '''
-        return np.max(self.integrate_series(), axis=1) - np.min(self.integrate_series(), axis=1)
+        range = np.max(self.integrate_series(), axis=1) - np.min(self.integrate_series(), axis=1)
+        return range
 
 
     def get_std(self):
         '''
         Returns the standard deviation of the deviate series in each range. 
         '''
-        return np.std(self.integrate_series(), axis=1)
+        std = np.std(self.spl_data, axis=1)
+        return std
     
 
     def rescaled_range(self):
         '''
         Returns the rescaled range for each range in the time series. 
         '''
-        return self.get_ranges() / self.get_std()
+        r_s = self.get_ranges() / self.get_std()
+        return r_s
 
 
     def average_rescaled_range(self):
         '''
-        Returns the R/S value of a time series at a given scale self.s
+        Returns the average R/S value of a time series at a given scale self.s
         '''
         return np.mean(self.rescaled_range())
     
@@ -80,13 +84,13 @@ class FluctuationAnalysis():
         Calculates the fluctuation function for the available scales and returns, 
         the logarithm of the values. 
         '''
-        means = []
-        for n in range(self.nu.size):
-            means.append(self.average_rescaled_range()) 
-            self.i = n 
+        means = [self.average_rescaled_range()]
+        for n in range(1, self.nu.size):
+            self.i += 1
             self.spl_data = self.split_data() 
+            means.append(self.average_rescaled_range()) 
         self.i = 0
-        print(means)
+        self.spl_data = self.split_data()
         return np.log(means), np.log(self.s)
     
 
@@ -105,6 +109,8 @@ class FluctuationAnalysis():
         Calculates the slope of the logarithm of the fluctuation function.
         '''
         rs_means, x = self.fluctuation_function()
+        x = sm.add_constant(x)
         model = sm.OLS(rs_means, x)
         results = model.fit()
+        print(results.summary())
         return results.params
