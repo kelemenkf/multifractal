@@ -71,10 +71,10 @@ class RescaledRange(Stationary):
         means = [self.average_rescaled_range()]
         for n in range(1, self.nu.size):
             self.i += 1
-            self.spl_data = self.split_data() 
+            self.spl_data = self.split_data(self.diff_data) 
             means.append(self.average_rescaled_range()) 
         self.i = 0
-        self.spl_data = self.split_data()
+        self.spl_data = self.split_data(self.diff_data)
         return np.log(means), np.log(self.s)
     
 
