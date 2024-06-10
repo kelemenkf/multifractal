@@ -6,7 +6,7 @@ import statsmodels.api as sm
 from repos.multifractal.multifractal import Multifractal
 
 
-class FluctuationAnalysis():
+class RescaledRange():
     def __init__(self, data, b=2, nu=5):
         self.data = data
         self.diff_data = np.diff(data)
@@ -16,6 +16,7 @@ class FluctuationAnalysis():
         self.s = self.N // (self.b**self.nu)
         self.i = 0
         self.spl_data = self.split_data()
+        self.H = self.calc_H()
 
 
     def split_data(self):
@@ -106,11 +107,11 @@ class FluctuationAnalysis():
 
     def calc_H(self):
         '''
-        Calculates the slope of the logarithm of the fluctuation function.
+        Calculates the slope of the logarithm of the fluctuation function (H).
         '''
         rs_means, x = self.fluctuation_function()
         x = sm.add_constant(x)
         model = sm.OLS(rs_means, x)
         results = model.fit()
         print(results.summary())
-        return results.params
+        return results.params[1]
