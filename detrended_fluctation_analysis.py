@@ -7,11 +7,11 @@ from repos.multifractal.multifractal import Multifractal
 
 
 class FluctuationAnalysis():
-    def __init__(self, data, b=2, nu=np.array([0,1,2,3,4,5])):
+    def __init__(self, data, b=2, nu=5):
         self.data = data
         self.diff_data = np.diff(data)
         self.b = b
-        self.nu = nu
+        self.nu = np.array(list(range(1,nu)))
         self.N = self.diff_data.size
         self.s = self.N // (self.b**self.nu)
         self.i = 0
@@ -76,21 +76,34 @@ class FluctuationAnalysis():
     
 
     def fluctuation_function(self):
+        '''
+        Calculates the fluctuation function for the available scales and returns, 
+        the logarithm of the values. 
+        '''
         means = []
         for n in range(self.nu.size):
             means.append(self.average_rescaled_range()) 
             self.i = n 
             self.spl_data = self.split_data() 
         self.i = 0
-        return means, self.s
+        print(means)
+        return np.log(means), np.log(self.s)
     
 
     def plot_fa_function(self):
+        '''
+        Plots the logarithm of the  calculated fluctuation function.
+        '''
         rs_means, x = self.fluctuation_function()
-        plt.plot(np.log(x), np.log(rs_means))
+        plt.plot(x, rs_means)
+        plt.xlabel("log(x)")
+        plt.ylabel("log(R/S)")
 
 
     def calc_H(self):
+        '''
+        Calculates the slope of the logarithm of the fluctuation function.
+        '''
         rs_means, x = self.fluctuation_function()
         model = sm.OLS(rs_means, x)
         results = model.fit()
