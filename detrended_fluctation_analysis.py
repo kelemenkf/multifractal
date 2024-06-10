@@ -6,12 +6,14 @@ from repos.multifractal.multifractal import Multifractal
 
 
 class FluctuationAnalysis():
-    def __init__(self, data, nu):
+    def __init__(self, data, b=2, nu=np.array([1,2,3,4,5])):
         self.data = data
         self.diff_data = np.diff(data)
+        self.b = b
         self.nu = nu
         self.N = self.diff_data.size
-        self.s = self.N // self.nu
+        self.s = self.N // (self.b**self.nu)
+        self.i = 0
         self.spl_data = self.split_data()
 
 
@@ -20,7 +22,7 @@ class FluctuationAnalysis():
         Splits a time series of differences into self.nu, equidistant ranges,
         and returns it as a self.nu x self.s matrix. 
         '''
-        split_data = [self.diff_data[i:i+self.s] for i in range(0,self.N,self.s)]
+        split_data = [self.diff_data[i:i+self.s[self.i]] for i in range(0,self.N,self.s[self.i])]
         return np.array(split_data)
         
 
@@ -63,4 +65,16 @@ class FluctuationAnalysis():
 
 
     def average_rescaled_range(self):
+        '''
+        Returns the R/S value of a time series at a given scale self.s
+        '''
+        return np.mean(self.rescaled_range())
+    
 
+    def fluctuation_function(self):
+        means = []
+        for n in self.nu.size:
+            means.append(self.average_rescaled_range()) 
+            self.i = n           
+        self.i = 0
+        return means, self.s
