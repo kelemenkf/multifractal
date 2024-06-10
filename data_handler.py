@@ -155,7 +155,6 @@ class DataHandler():
         '''
         Plots X(t) with increments of 1 day. 
         '''
-        print(self.data.index[1:])
         plt.plot(self.data.index[1:], np.cumsum(self.X[0]))
         plt.title("Cumulative returns")
         plt.xlabel("$t$")

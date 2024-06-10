@@ -102,6 +102,7 @@ class MethodOfMoments(Multifractal):
             offsets = np.zeros(len(self.q_range))
         for i in range(len(self.q_range)):
             plt.plot(np.log(x), np.log(data[i,:]) - offsets[i], label=f"{self.q_range[i]} moment")
+        print(name)
         plt.xlabel("$ln(ε)$")
         plt.ylabel("$ln(S)$")
         plt.title("Partition function")
