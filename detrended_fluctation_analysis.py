@@ -1,12 +1,13 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import statsmodels.api as sm
 
 from repos.multifractal.multifractal import Multifractal
 
 
 class FluctuationAnalysis():
-    def __init__(self, data, b=2, nu=np.array([1,2,3,4,5])):
+    def __init__(self, data, b=2, nu=np.array([0,1,2,3,4,5])):
         self.data = data
         self.diff_data = np.diff(data)
         self.b = b
@@ -23,7 +24,10 @@ class FluctuationAnalysis():
         and returns it as a self.nu x self.s matrix. 
         '''
         split_data = [self.diff_data[i:i+self.s[self.i]] for i in range(0,self.N,self.s[self.i])]
-        return np.array(split_data)
+        if self.b**self.nu[self.i] * self.s[self.i] != self.N:
+            return np.array(split_data[:self.b**self.nu[self.i]])
+        else:
+            return np.array(split_data[:self.b**self.nu[self.i]])
         
 
     def demean_data(self):
@@ -73,8 +77,21 @@ class FluctuationAnalysis():
 
     def fluctuation_function(self):
         means = []
-        for n in self.nu.size:
+        for n in range(self.nu.size):
             means.append(self.average_rescaled_range()) 
-            self.i = n           
+            self.i = n 
+            self.spl_data = self.split_data() 
         self.i = 0
         return means, self.s
+    
+
+    def plot_fa_function(self):
+        rs_means, x = self.fluctuation_function()
+        plt.plot(np.log(x), np.log(rs_means))
+
+
+    def calc_H(self):
+        rs_means, x = self.fluctuation_function()
+        model = sm.OLS(rs_means, x)
+        results = model.fit()
+        return results.params
