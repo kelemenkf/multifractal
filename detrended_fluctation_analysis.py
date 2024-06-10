@@ -31,8 +31,15 @@ class FluctuationAnalysis():
         data minus the mean of the data in that row. 
         '''
         means = np.mean(self.spl_data, axis=1)
-        print(means)
         return [self.spl_data[i, :] - means[i] for i in range(means.size)]
+    
+
+    def integrate_series(self):
+        '''
+        Returns the profile (integrated series) of each of the demeaned ranges.
+        '''
+        return np.cumsum(self.demean_data(), axis=1)
+    
     
 
     def rescaled_range(self):
