@@ -1,7 +1,8 @@
 import numpy as np
+import math
 
 class Stationary():
-    def __init__(self, data, b, nu=5) -> None:
+    def __init__(self, data, b=2, method='dfa', nu_max=8) -> None:
         '''
         self.N - the length of the data
         self.b - the scalar with which the data is scaled. E.g. if b = 2, the scales considred are always 
@@ -15,10 +16,12 @@ class Stationary():
         self.x - the index of the time series data, to be used in polyfit
         '''
         self.data = data
+        self.method = method
+        self.nu_max = nu_max
         self.diff_data = np.diff(self.data)
         self.diff_data_r = np.flip(self.diff_data)
         self.b = b
-        self.nu = np.array(list(range(0,nu+1)))
+        self.nu = self.determine_limits()
         self.N = self.diff_data.size
         self.N_s = self.b**self.nu
         self.s = self.N // self.N_s
@@ -28,6 +31,17 @@ class Stationary():
         self.x = np.array(range(len(self.data)))
         self.x_split = self.split_data(self.x)
         self.x_split_r = np.flip(self.x_split)
+
+
+    def determine_limits(self):
+        if self.method == 'fa':
+            self.nu_min = math.ceil(math.log(10,self.b))
+        elif self.method == 'dfa':
+            self.nu_min = math.ceil(math.log(4,self.b))
+        elif self.method == 'rs':
+            return np.array(range(0, self.nu_max))
+        return np.array(range(self.nu_min,self.nu_max))
+
 
     
     def split_data(self, data):

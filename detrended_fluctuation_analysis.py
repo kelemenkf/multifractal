@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mlp
 import statsmodels.api as sm
+import math
 
 mlp.rcParams['figure.figsize'] = (16,9)
 
@@ -9,8 +10,8 @@ from repos.multifractal.stationary import Stationary as Nonstationary
 
 
 class DFA(Nonstationary):
-    def __init__(self, data, b=2, nu=5, m=2):
-        super().__init__(data, b, nu)
+    def __init__(self, data, b=2, m=2, method='dfa'):
+        super().__init__(data, b, method)
 
         '''
         self.m - the degree of the polynomial fit. If m=2 the analysis is 

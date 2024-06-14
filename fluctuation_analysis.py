@@ -7,15 +7,9 @@ from repos.multifractal.stationary import Stationary
 
 
 class FluctuationAnalysis(Stationary):
-    def __init__(self, data, b=2, nu_max=5):
-        super().__init__(data, b)
+    def __init__(self, data, b=2, method='fa', nu_max=8):
+        super().__init__(data, b=b, method=method, nu_max=nu_max)
 
-        self.nu_min = math.ceil(math.log(10,self.b))
-        if self.nu_min > nu_max:
-            raise ValueError("self.nu has to be larger")
-        self.nu_max = nu_max
-        self.nu = np.array(range(self.nu_min,self.nu_max))
-        self.s = self.N // (self.b**self.nu)
         self.alpha = self.calc_alpha()
 
 
@@ -64,7 +58,7 @@ class FluctuationAnalysis(Stationary):
 
     def calc_alpha(self):
         '''
-        Returns alpha, that is the slope of the logarithm of FA_2(s) and self.s.
+        Calculates alpha, that is the slope of the logarithm of FA_2(s) and self.s
         '''
         y, x = self.fluctuation_function()
         x = sm.add_constant(x)

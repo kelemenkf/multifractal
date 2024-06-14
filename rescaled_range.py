@@ -8,8 +8,8 @@ from repos.multifractal.stationary import Stationary
 
 
 class RescaledRange(Stationary):
-    def __init__(self, data, b=2, nu=5) -> None:
-        super().__init__(data, b, nu)
+    def __init__(self, data, b=2, nu_max=8, method='rs') -> None:
+        super().__init__(data, b=b, nu_max=nu_max, method=method)
 
         self.spl_data = self.split_data(self.diff_data)
         self.H = self.calc_H()
