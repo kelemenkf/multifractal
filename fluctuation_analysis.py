@@ -16,8 +16,6 @@ class FluctuationAnalysis(Stationary):
         self.nu_max = nu_max
         self.nu = np.array(range(self.nu_min,self.nu_max))
         self.s = self.N // (self.b**self.nu)
-        self.spl_data = self.split_data(self.data)
-        self.spl_data_r = self.split_data(np.flip(self.data))
         self.alpha = self.calc_alpha()
 
 

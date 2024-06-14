@@ -11,6 +11,7 @@ class RescaledRange(Stationary):
     def __init__(self, data, b=2, nu=5) -> None:
         super().__init__(data, b, nu)
 
+        self.spl_data = self.split_data(self.diff_data)
         self.H = self.calc_H()
         
 
