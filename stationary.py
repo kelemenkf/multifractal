@@ -27,6 +27,7 @@ class Stationary():
         self.spl_data_r = self.split_data(np.flip(self.data))
         self.x = np.array(range(len(self.data)))
         self.x_split = self.split_data(self.x)
+        self.x_split_r = np.flip(self.x_split)
 
     
     def split_data(self, data):
@@ -41,3 +42,18 @@ class Stationary():
             return np.array(split_data[:self.N_s[self.i]])
         else:
             return np.array(split_data[:self.N_s[self.i]])
+        
+
+    def reset_data(self):
+        self.spl_data = self.split_data(self.data)
+        self.spl_data_r = self.split_data(np.flip(self.data))
+        self.x_split = self.split_data(self.x)
+        self.x_split_r = np.flip(self.x_split)
+        
+
+    def set_i(self, i):
+        '''
+        Sets the iterator variable self.i for inspection of the estimation at 
+        different scales wihtout looping.
+        '''
+        self.i = i
