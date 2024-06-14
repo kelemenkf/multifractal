@@ -21,10 +21,11 @@ class DFA(Nonstationary):
         return coeffs
     
 
-    def detrend(self):
+    def poly_coeffs_segment(self):
         C = np.array([])
-        for n in range(self.nu):
+        for n in range(self.N_s[self.i]):
             segment = (self.x_split[n], self.spl_data[n])
+            print(segment)
             coeffs = self.poly_fit_segment(segment)
             C = np.append(C, coeffs)
         return C
