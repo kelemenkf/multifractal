@@ -16,6 +16,9 @@ class DFA(Nonstationary):
         a DFA2 analysis. 
         '''
         self.m = m
+        self.C = self.poly_coeffs_segment()
+        self.Y = self.poly_vals_segment()
+        self.Y_detrend = self.detrend_profile()
 
 
     def poly_fit_segment(self, segment):
@@ -39,28 +42,57 @@ class DFA(Nonstationary):
         return np.array(C)
     
 
-    def poly_calc_segment(self):
+    def poly_vals_segment(self):
         '''
         Returns a self.N_s x self.s matrix of values of the fitted polynomial function,
         at each segment. 
         '''
         C = self.poly_coeffs_segment()
-        Y = np.empty((0,3))
+        Y = []
         for n in range(self.N_s[self.i]):
             x = self.x_split[n, :]
             c = C[n]
             y = np.polyval(c, x)
-            Y = np.append(Y, y)
-        return Y
+            Y.append(y)
+        return np.array(Y)
 
 
     def plot_poly(self):
         '''
         Plots the fitted polynomial function and the scatter of the data together. 
         '''
-        Y = self.poly_calc_segment()
-        Y = Y.flatten()
+        Y = self.Y.flatten()
         X = self.x_split.flatten()
         plt.scatter(X, self.spl_data.flatten())
         plt.plot(X, Y)
         # plt.axvline([self.x[::self.s[self.i]]])
+
+
+    def detrend_profile(self):
+        '''
+        Detrends the profile of the data by subtracting the values of the fitted
+        polynomial from the original data. 
+        '''
+        return self.spl_data - self.Y
+    
+
+    def squared_fluctuation(self):
+        '''
+        Compuptes the mean squared fluctuation at each segment from the detrended data.
+        This is equal to variance with self.s degrees of freedom. 
+        '''
+        vars = np.var(self.Y_detrend, axis=1)
+        return vars
+    
+
+    def mean_fluctuation(self):
+        '''
+        Calculates the mean fluctuation (the square root of the mean of squared fluctuations).
+        '''
+        fa_2 = self.squared_fluctuation(self.spl_data) + self.squared_fluctuation(self.spl_data_r)
+        mean = np.mean(fa_2)
+        return np.sqrt(mean)
+
+
+    def fluctuation_function(self):
+        fa = []
