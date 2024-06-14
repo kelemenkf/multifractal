@@ -60,11 +60,13 @@ class DFA(Nonstationary):
         '''
         Plots the fitted polynomial function and the scatter of the data together. 
         '''
-        Y = self.Y.flatten()
+        Y = self.poly_vals_segment(self.spl_data, self.x_split)
+        Y = Y.flatten()
         X = self.x_split.flatten()
-        plt.scatter(X, self.spl_data.flatten())
+        # plt.scatter(X, self.spl_data.flatten())
         plt.plot(X, Y)
-        # plt.axvline([self.x[::self.s[self.i]]])
+        for i in range(0,X.size-1,self.s[self.i]):
+            plt.axvline(X[i])
 
 
     def detrend_profile(self, Y, X):
