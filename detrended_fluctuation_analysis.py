@@ -1,6 +1,11 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mlp
+
+mlp.rcParams['figure.figsize'] = (16,9)
 
 from repos.multifractal.stationary import Stationary as Nonstationary
+
 
 class DFA(Nonstationary):
     def __init__(self, data, b=2, nu=5, m=2):
@@ -22,10 +27,31 @@ class DFA(Nonstationary):
     
 
     def poly_coeffs_segment(self):
-        C = np.array([])
+        '''
+        Returns a self.N_s x self.m + 1 matrix of polynomial coefficients for 
+        each considered segment. 
+        '''
+        C = []
         for n in range(self.N_s[self.i]):
             segment = (self.x_split[n], self.spl_data[n])
-            print(segment)
             coeffs = self.poly_fit_segment(segment)
-            C = np.append(C, coeffs)
-        return C
+            C.append(coeffs)
+        return np.array(C)
+    
+
+    def poly_calc_segment(self):
+        C = self.poly_coeffs_segment()
+        Y = np.empty((0,3))
+        for n in range(self.N_s[self.i]):
+            x = self.x_split[n, :]
+            c = C[n]
+            y = np.polyval(c, x)
+            plt.plot(x, y)
+            plt.scatter(self.x_split[n, :], self.spl_data[n, :])
+            Y = np.append(Y, y)
+        return Y
+
+
+    def plot_poly(self, Y):
+        plt.scatter()
+        plt.plot()
