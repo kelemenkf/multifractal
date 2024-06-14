@@ -33,7 +33,7 @@ class Stationary():
     def split_data(self, data):
         '''
         Splits a time series of differences into self.nu, equidistant ranges,
-        and returns it as a sefl.N_s x self.s matrix. If the size of the data,
+        and returns it as a sefl.N_s[self.i] x self.s matrix. If the size of the data,
         is not exactly equal to the number of segments times the size of the segments, 
         the residual data is left off.
         '''
@@ -45,6 +45,9 @@ class Stationary():
         
 
     def reset_data(self):
+        '''
+        Redoes the splitting of the data with the current value of self.i.
+        '''
         self.spl_data = self.split_data(self.data)
         self.spl_data_r = self.split_data(np.flip(self.data))
         self.x_split = self.split_data(self.x)
@@ -57,3 +60,4 @@ class Stationary():
         different scales wihtout looping.
         '''
         self.i = i
+        self.reset_data()

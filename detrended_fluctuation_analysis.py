@@ -30,7 +30,7 @@ class DFA(Nonstationary):
 
     def poly_coeffs_segment(self, Y, X):
         '''
-        Returns a self.N_s x self.m + 1 matrix of polynomial coefficients for 
+        Returns a self.N_s[self.i] x self.m + 1 matrix of polynomial coefficients for 
         each considered segment. 
         '''
         C = []
@@ -43,7 +43,7 @@ class DFA(Nonstationary):
 
     def poly_vals_segment(self, Y, X):
         '''
-        Returns a self.N_s x self.s matrix of values of the fitted polynomial function,
+        Returns a self.N_s[self.i] x self.s matrix of values of the fitted polynomial function,
         at each segment. 
         '''
         C = self.poly_coeffs_segment(Y, X)
@@ -65,7 +65,7 @@ class DFA(Nonstationary):
         X = self.x_split.flatten()
         # plt.scatter(X, self.spl_data.flatten())
         plt.plot(X, Y)
-        for i in range(0,X.size-1,self.s[self.i]):
+        for i in range(0,X.size,self.s[self.i]):
             plt.axvline(X[i])
 
 
