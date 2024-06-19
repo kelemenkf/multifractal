@@ -10,8 +10,8 @@ from repos.multifractal.stationary import Stationary as Nonstationary
 
 
 class DFA(Nonstationary):
-    def __init__(self, data, b=2, m=2, method='dfa'):
-        super().__init__(data, b, method)
+    def __init__(self, data, b=2, m=2, method='dfa', data_type='profile'):
+        super().__init__(data, b, method, data_type=data_type)
 
         '''
         self.m - the degree of the polynomial fit. If m=2 the analysis is 
@@ -93,7 +93,7 @@ class DFA(Nonstationary):
         '''
         Calculates the mean fluctuation (the square root of the mean of squared fluctuations).
         '''
-        fa_2 = self.squared_fluctuation(self.spl_data, self.x_split) + self.squared_fluctuation(self.spl_data_r, self.x_split_r)
+        fa_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split),self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
         mean = np.mean(fa_2)
         return np.sqrt(mean)
 
