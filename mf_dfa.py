@@ -13,20 +13,27 @@ class MF_DFA(DFA):
         '''
         Obtain the qth order fluctuation function
         '''
-        q_range = np.linspace(q[0], q[1], ((q[1]-q[0]) / gran)+1)
+        q_range = np.linspace(q[0], q[1], int(((q[1]-q[0]) // gran))+1)
+        print(q_range)
         fa = []
         for q in q_range:
             f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split), self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
             fa_q = np.mean((f_2**(q/2)))**(1/q)
-            fa.appned(fa_q)
+            fa.append(fa_q)
         return fa
 
 
-    def fluctuation_function_q(self):
+    def fluctuation_functions(self):
         '''
-
+        Calculates the fluctation function for different scales s, and for all orders q
+        at each scale.
         '''
-        fa = [self.q_fluctuation]
-        for n in range(self.nu_size):
+        fa_q = [self.q_fluctuation]
+        for n in range(self.nu.size):
             self.i += 1
+            self.reset_data()
+            fa_q.append(self.q_fluctuation())
+        self.i = 0
+        self.reset_data()
+        return fa_q
 
