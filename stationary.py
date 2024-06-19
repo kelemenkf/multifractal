@@ -2,8 +2,10 @@ import numpy as np
 import math
 
 class Stationary():
-    def __init__(self, data, b=2, method='dfa', nu_max=8) -> None:
+    def __init__(self, data, b=2, method='dfa', nu_max=8, data_type='profile') -> None:
         '''
+        self.data - the data to be analyzed. Format is an integrated time series. 
+        self.data_type - wether the time series is integrated or not. Default if that it is.
         self.N - the length of the data
         self.b - the scalar with which the data is scaled. E.g. if b = 2, the scales considred are always 
         half that of the previous ones. 
@@ -16,6 +18,10 @@ class Stationary():
         self.x - the index of the time series data, to be used in polyfit
         '''
         self.data = data
+        self.data_type = data_type
+        #If the given data is not integrated the 0 is inserted as the Y_0
+        if self.data_type == 'diff':
+            self.data = np.insert(self.data, 0, 0)
         self.method = method
         self.nu_max = nu_max
         self.diff_data = np.diff(self.data)
@@ -36,7 +42,7 @@ class Stationary():
     def determine_limits(self):
         if self.method == 'fa':
             self.nu_min = math.ceil(math.log(10,self.b))
-        elif self.method == 'dfa':
+        elif self.method == 'dfa' or self.method == 'mf_dfa':
             self.nu_min = math.ceil(math.log(4,self.b))
         elif self.method == 'rs':
             return np.array(range(0, self.nu_max))
