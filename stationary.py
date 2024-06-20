@@ -21,7 +21,9 @@ class Stationary():
         self.data_type = data_type
         #If the given data is not integrated the 0 is inserted as the Y_0
         if self.data_type == 'diff':
-            self.data = np.cumsum(np.insert(self.data, 0, 0))
+            self.data = np.insert(self.data, 0, 0)
+            self.data = np.cumsum(self.data)
+            self.data_type == 'profile'
         self.method = method
         self.nu_max = nu_max
         self.diff_data = np.diff(self.data)

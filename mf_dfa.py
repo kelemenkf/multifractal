@@ -9,13 +9,14 @@ class MF_DFA(DFA):
         super().__init__(data, b=b, method=method, m=m, data_type=data_type)
 
         '''
-        self.data_type - assumes that the time series is not integrated. 
+        self.data_type - assumes that the time series is not integrated, but the TimeSeries base class
+        integrates it. 
         '''
         self.q_range = np.linspace(q[0],q[-1],int((q[1]-q[0])/gran)+1)
-        self.h_q = self.calc_h_q()
         if modified:
             self.data = self.modified_data()
             self.reset_data()
+        self.h_q = self.calc_h_q()
 
 
     def modified_data(self):
@@ -84,9 +85,9 @@ class MF_DFA(DFA):
         '''
         h_q = {}
         data = self.fluctuation_functions()
-        for s in range(data.shape[1]):
-            h = self.get_slope(np.log(data[:, s]), np.log(self.s))
-            h_q.update({self.q_range[s]:h})
+        for q in range(data.shape[1]):
+            h = self.get_slope(np.log(data[:, q]), np.log(self.s))
+            h_q.update({self.q_range[q]:h})
         return h_q
     
 
@@ -94,7 +95,7 @@ class MF_DFA(DFA):
         '''
         Plots the h(q) function.
         '''
-        plt.plot(self.h_q.keys(), self.h_q.values())
+        plt.plot(list(self.h_q.keys()), list(self.h_q.values()))
         plt.xlabel("$q$")
         plt.ylabel("$h(q)$")
 
@@ -104,9 +105,8 @@ class MF_DFA(DFA):
         Plots the fluctuation functions for the different qs. 
         '''
         fa_q = self.fluctuation_functions()
-        for q in Q:
-            plt.legend(f"{q}")
-            plt.plot(self.s, fa_q[:,q])
+        for q in range(self.q_range.size):
+            plt.plot(np.log(self.s), np.log(fa_q[:,q]), label=[f"{q}"])
 
 
 
