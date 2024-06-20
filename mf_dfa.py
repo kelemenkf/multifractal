@@ -1,5 +1,6 @@
 import numpy as np
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
 
 from repos.multifractal.detrended_fluctuation_analysis import DFA
 
@@ -10,14 +11,14 @@ class MF_DFA(DFA):
         self.m = m
         self.q_range = np.linspace(q[0],q[-1],int((q[1]-q[0])/gran)+1)
         self.h_q = self.calc_h_q()
-
+        
 
     def q_fluctuation_0(self):
         '''
         Calculates the fluctuation function with q = 0.
         '''
         f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split), self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
-        fa_0 = np.exp(np.sum(np.log(f_2)) / self.N_s[self.i] * 4)
+        fa_0 = np.exp(np.sum(np.log(f_2)) / (self.N_s[self.i] * 4))
         return fa_0
 
 
@@ -73,6 +74,8 @@ class MF_DFA(DFA):
 
     def plot_h_q(self):
         plt.plot(self.h_q.keys(), self.h_q.values())
+        plt.xlabel("$q$")
+        plt.ylabel("$h(q)$")
 
 
     def plot_fa(self):
