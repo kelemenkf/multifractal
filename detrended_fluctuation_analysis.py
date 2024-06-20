@@ -59,12 +59,11 @@ class DFA(Nonstationary):
 
     def plot_poly(self):
         '''
-        Plots the fitted polynomial function and the scatter of the data together. 
+        Plots the fitted polynomial function of the data. 
         '''
         Y = self.poly_vals_segment(self.spl_data, self.x_split)
         Y = Y.flatten()
         X = self.x_split.flatten()
-        # plt.scatter(X, self.spl_data.flatten())
         plt.plot(X, Y)
         for i in range(0,X.size,self.s[self.i]):
             plt.axvline(X[i])

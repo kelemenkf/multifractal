@@ -59,7 +59,7 @@ class Simulator():
             return (self.subordinated.sample(n), times)
 
 
-    def sim_mmar(self, check=False):
+    def sim_mmar(self, profile=False, check=False):
         '''
         Simulates one path of a multifractal price series. If sim_type is 'mmar_m', 
         it simulates the martingale version using a standard Brwonian motion. If sim_type 
@@ -89,7 +89,7 @@ class Simulator():
         s, times = self.sim_bm(mu_increment_size)
         s = np.diff(s)
 
-        if check:
+        if check: 
             cache = np.sum(self.subordinator.mu)
             return cache
 

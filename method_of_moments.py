@@ -101,7 +101,8 @@ class MethodOfMoments(Multifractal):
         else:
             offsets = np.zeros(len(self.q_range))
         for i in range(len(self.q_range)):
-            plt.plot(np.log(x), np.log(data[i,:]) - offsets[i], label=f"{self.q_range[i]} moment")
+            if self.q_range[i] in np.arange(0, 5.5, 0.5):
+                plt.plot(np.log(x), np.log(data[i,:]) - offsets[i], label=f"{self.q_range[i]} moment")
         print(name)
         plt.xlabel("$ln(ε)$")
         plt.ylabel("$ln(S)$")
@@ -207,10 +208,15 @@ class MethodOfMoments(Multifractal):
         '''
         Returns the H index that is the value where the scaling function is the closest to 0.
         '''
-        #TODO better approximation for H.
         L = list(self.tau_q.values())
         i = L.index(min(L, key=lambda x: abs(x - 0)))
         return 1 / list(self.tau_q.keys())[i]
+    
+
+    #TODO better approximation for H.
+    def fit_tau_q(self):
+        q_data = list(self.tau_q.values())
+        tau_data = list(self.tau_q.keys())
     
 
     def get_lambda(self):
