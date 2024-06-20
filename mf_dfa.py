@@ -5,11 +5,26 @@ import matplotlib.pyplot as plt
 from repos.multifractal.detrended_fluctuation_analysis import DFA
 
 class MF_DFA(DFA):
-    def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1):
+    def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1, modified=False):
         super().__init__(data, b=b, method=method, m=m, data_type=data_type)
 
+        '''
+        self.data_type - assumes that the time series is not integrated. 
+        '''
         self.q_range = np.linspace(q[0],q[-1],int((q[1]-q[0])/gran)+1)
         self.h_q = self.calc_h_q()
+        if modified:
+            self.data = self.modified_data()
+            self.reset_data()
+
+
+    def modified_data(self):
+        '''
+        Returns the modified data for the modified MF-DFA which is more accurate 
+        near h(q) = 0.
+        '''
+        data = np.cumsum(self.data - np.mean(self.data))
+        return data
 
 
     def q_fluctuation_0(self):
@@ -23,7 +38,7 @@ class MF_DFA(DFA):
 
     def q_fluctuation(self, q=[-5,5], gran=0.1):
         '''
-        Obtain the qth order fluctuation function
+        Obtain the qth order fluctuation function.
         '''
         fa = []
         fa_0 = self.q_fluctuation_0()
@@ -77,7 +92,7 @@ class MF_DFA(DFA):
 
     def plot_h_q(self):
         '''
-        Plots the h(q) function
+        Plots the h(q) function.
         '''
         plt.plot(self.h_q.keys(), self.h_q.values())
         plt.xlabel("$q$")
@@ -90,7 +105,7 @@ class MF_DFA(DFA):
         '''
         fa_q = self.fluctuation_functions()
         for q in Q:
-            print(q)
+            plt.legend(f"{q}")
             plt.plot(self.s, fa_q[:,q])
 
 

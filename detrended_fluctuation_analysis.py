@@ -15,9 +15,13 @@ class DFA(Nonstationary):
 
         '''
         self.m - the degree of the polynomial fit. If m=2 the analysis is 
-        a DFA2 analysis. 
+        a DFA2 analysis, which eliminates quadratic trends from the profile, 
+        and linear trends from the series. 
+        self.data_type - assumes that the time series is not integrated. 
         '''
         self.m = m
+        #Checks condition that s >= m + 2
+        assert np.all(self.s >= self.m + 2)
         self.alpha = self.calc_alpha()
 
 
