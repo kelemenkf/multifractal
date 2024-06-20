@@ -6,12 +6,11 @@ from repos.multifractal.detrended_fluctuation_analysis import DFA
 
 class MF_DFA(DFA):
     def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1):
-        super().__init__(data, b=b, method=method, data_type=data_type)
+        super().__init__(data, b=b, method=method, m=m, data_type=data_type)
 
-        self.m = m
         self.q_range = np.linspace(q[0],q[-1],int((q[1]-q[0])/gran)+1)
         self.h_q = self.calc_h_q()
-        
+
 
     def q_fluctuation_0(self):
         '''
@@ -64,6 +63,10 @@ class MF_DFA(DFA):
     
 
     def calc_h_q(self):
+        '''
+        Calculates the h(q) function the generalized Hurst exponetns, describing the 
+        scaling behaviour of the fluctuations. 
+        '''
         h_q = {}
         data = self.fluctuation_functions()
         for s in range(data.shape[1]):
@@ -73,14 +76,23 @@ class MF_DFA(DFA):
     
 
     def plot_h_q(self):
+        '''
+        Plots the h(q) function
+        '''
         plt.plot(self.h_q.keys(), self.h_q.values())
         plt.xlabel("$q$")
         plt.ylabel("$h(q)$")
 
 
-    def plot_fa(self):
+    def plot_fa(self, Q=list(range(-5,6))):
+        '''
+        Plots the fluctuation functions for the different qs. 
+        '''
         fa_q = self.fluctuation_functions()
-        print(fa_q.shape)
+        for q in Q:
+            print(q)
+            plt.plot(self.s, fa_q[:,q])
+
 
 
 
