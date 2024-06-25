@@ -3,10 +3,10 @@ import matplotlib.pyplot as plt
 import math
 import statsmodels.api as sm
 
-from repos.multifractal.stationary import Stationary
+from repos.multifractal.time_series import TimeSeries
 
 
-class FluctuationAnalysis(Stationary):
+class FluctuationAnalysis(TimeSeries):
     def __init__(self, data, b=2, method='fa', nu_max=8):
         super().__init__(data, b=b, method=method, nu_max=nu_max)
 

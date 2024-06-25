@@ -76,7 +76,7 @@ class MF_DFA(DFA):
         Function to individually plot the data and the best fitted line on a 
         logarithmic scale of F_q(s) for a given q, specified by the parameter. 
         '''
-        q_index = np.where(self.q_range == q)
+        q_index = np.where(np.round(self.q_range,1) == q)
         print(q_index)
         data = self.fa_q[:, q_index]
         y = np.log(data)

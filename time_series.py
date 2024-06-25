@@ -1,7 +1,7 @@
 import numpy as np
 import math
 
-class Stationary():
+class TimeSeries():
     def __init__(self, data, b=2, method='dfa', nu_max=8, data_type='profile') -> None:
         '''
         self.data - the data to be analyzed. Format is an integrated time series. 

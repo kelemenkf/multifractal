@@ -4,10 +4,10 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
 
-from repos.multifractal.stationary import Stationary
+from repos.multifractal.stationary import TimeSeries
 
 
-class RescaledRange(Stationary):
+class RescaledRange(TimeSeries):
     def __init__(self, data, b=2, nu_max=8, method='rs') -> None:
         super().__init__(data, b=b, nu_max=nu_max, method=method)
 
