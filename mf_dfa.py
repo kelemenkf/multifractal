@@ -5,17 +5,20 @@ import matplotlib.pyplot as plt
 from repos.multifractal.detrended_fluctuation_analysis import DFA
 
 class MF_DFA(DFA):
-    def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1, modified=False):
-        super().__init__(data, b=b, method=method, m=m, data_type=data_type)
+    def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1, modified=False, nu_max=8):
+        super().__init__(data, b=b, method=method, m=m, data_type=data_type, nu_max=nu_max)
 
         '''
         self.data_type - assumes that the time series is not integrated, but the TimeSeries base class
         integrates it. 
+        self.modified - If True it takes the sum of the profile. This will lead to better estimations of h(q) near
+        h(q) = 0.
         '''
         self.q_range = np.linspace(q[0],q[-1],int((q[1]-q[0])/gran)+1)
         if modified:
             self.data = self.modified_data()
             self.reset_data()
+        self.fa_q = self.fluctuation_functions()
         self.h_q = self.calc_h_q()
 
 
@@ -66,6 +69,26 @@ class MF_DFA(DFA):
         self.i = 0
         self.reset_data()
         return np.array(fa_q)
+    
+
+    def plot_f_q_s(self, q):
+        '''
+        Function to individually plot the data and the best fitted line on a 
+        logarithmic scale of F_q(s) for a given q, specified by the parameter. 
+        '''
+        q_index = np.where(self.q_range == q)
+        print(q_index)
+        data = self.fa_q[:, q_index]
+        y = np.log(data)
+        x = np.log(self.s)
+        params = self.get_slope(y, x)
+
+        plt.scatter(x, y)
+        print(params)
+        best_fit_y = params[0] + (params[1] * x)
+
+        plt.plot(x, best_fit_y)
+        plt.legend(f"{q}")
 
 
     def get_slope(self, y, x):
@@ -75,7 +98,7 @@ class MF_DFA(DFA):
         x = sm.add_constant(x)
         model = sm.OLS(y, x)
         results = model.fit()
-        return results.params[1]
+        return results.params
     
 
     def calc_h_q(self):
@@ -84,9 +107,9 @@ class MF_DFA(DFA):
         scaling behaviour of the fluctuations. 
         '''
         h_q = {}
-        data = self.fluctuation_functions()
+        data = self.fa_q
         for q in range(data.shape[1]):
-            h = self.get_slope(np.log(data[:, q]), np.log(self.s))
+            h = self.get_slope(np.log(data[:, q]), np.log(self.s))[1]
             h_q.update({self.q_range[q]:h})
         return h_q
     

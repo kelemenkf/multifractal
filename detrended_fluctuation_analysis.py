@@ -10,8 +10,8 @@ from repos.multifractal.stationary import Stationary as Nonstationary
 
 
 class DFA(Nonstationary):
-    def __init__(self, data, b=2, m=2, method='dfa', data_type='profile'):
-        super().__init__(data, b, method, data_type=data_type)
+    def __init__(self, data, b=2, m=2, method='dfa', data_type='profile', nu_max=8):
+        super().__init__(data, b, method, data_type=data_type, nu_max=nu_max)
 
         '''
         self.m - the degree of the polynomial fit. If m=2 the analysis is 
