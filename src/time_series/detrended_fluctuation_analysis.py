@@ -54,27 +54,23 @@ class DFA(Nonstationary):
         C = self.poly_coeffs_segment(Y, X)
         Y_fitted = []
         for n in range(self.N_s[self.i]):
-            x = self.x_split[n, :]
+            x = X[n, :]
             c = C[n]
             y = np.polyval(c, x)
             Y_fitted.append(y)
         return np.array(Y_fitted)
 
 
-    def plot_poly(self):
+    def plot_poly(self, Y, X):
         '''
         Plots the fitted polynomial function of the data. 
         '''
-        Y = self.poly_vals_segment(self.spl_data, self.x_split)
+        Y = self.poly_vals_segment(Y, X)
         Y = Y.flatten()
-        X = self.x_split.flatten()
+        X = X.flatten()
         plt.plot(X, Y)
         for i in range(0,X.size,self.s[self.i]):
             plt.axvline(X[i])
-
-    
-    def plot_Y_detrended(self):
-        pass
 
 
     def detrend_profile(self, Y, X):
@@ -85,6 +81,18 @@ class DFA(Nonstationary):
         Y_fitted = self.poly_vals_segment(Y, X)
         return Y - Y_fitted
     
+
+    def plot_Y_detrended(self, Y, X):
+        '''
+        Plots the detrended fluctuations of the time series.
+        '''
+        y = self.detrend_profile(Y, X)
+        Y = y.flatten()
+        X = X.flatten()
+        plt.plot(X, Y)
+        for i in range(X.size,0,-self.s[self.i]):
+            plt.axvline(X[i-1])
+
 
     def squared_fluctuation(self, Y, X):
         '''
@@ -101,9 +109,8 @@ class DFA(Nonstationary):
         Calculates the mean fluctuation (the square root of the mean of squared fluctuations).
         '''
         fa_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split),self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
-        print(fa_2.shape, fa_2)
         mean = np.mean(fa_2)
-        print(mean)
+        print(f"The mean of the variance: {mean}")
         return np.sqrt(mean)
 
 

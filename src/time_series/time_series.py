@@ -38,7 +38,7 @@ class TimeSeries():
         self.spl_data_r = self.split_data(np.flip(self.data))
         self.x = np.array(range(len(self.data)))
         self.x_split = self.split_data(self.x)
-        self.x_split_r = np.flip(self.x_split)
+        self.x_split_r = self.split_data(np.flip(self.x))
 
 
     def determine_limits(self):
@@ -73,7 +73,7 @@ class TimeSeries():
         self.spl_data = self.split_data(self.data)
         self.spl_data_r = self.split_data(np.flip(self.data))
         self.x_split = self.split_data(self.x)
-        self.x_split_r = np.flip(self.x_split)
+        self.x_split_r = self.split_data(np.flip(self.x))
         
 
     def set_i(self, i):
