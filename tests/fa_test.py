@@ -14,23 +14,39 @@ args = parser.parse_args()
 
 import numpy as np
 
-from multifractal.time_series.fluctuation_analysis import FluctuationAnalysis
-from multifractal.simulator import Simulator
+from multifractal.src.time_series.fluctuation_analysis import FluctuationAnalysis
+from multifractal.src.simulator import Simulator
 
 
 i = 0
 samples = args.N_samples
-alphas = []
+alphas = [[], []]
 
+
+print("Wiener Brownian Motion:")
 while i < samples:
   sim = Simulator('bm', T=65536, dt_scale=1)
   sample = sim.sim_bm(65536)
   fa = FluctuationAnalysis(sample[0])
   print(fa.alpha)
-  alphas.append(fa.alpha)
+  alphas[0].append(fa.alpha)
+  i += 1
+
+i = 0
+
+print("Fractional Brownian Motion:")
+while i < samples: 
+  sim = Simulator('fbm', T=65536, dt_scale=1, H=0.7)
+  sample = sim.sim_bm(65536)
+  fa = FluctuationAnalysis(sample[0])
+  print(fa.alpha)
+  alphas[1].append(fa.alpha)
   i += 1
 
 
-print(f"Mean alpha based on {samples} simulated paths: {np.mean(alphas)}")
+print(f"Mean alpha based on {samples} simulated paths of WBM: {np.mean(alphas[0])}")
+print(f"Mean alpha based on {samples} simulated paths of FBM with H=0.7: {np.mean(alphas[1])}")
+
+
 
 
