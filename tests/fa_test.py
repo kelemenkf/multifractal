@@ -1,7 +1,7 @@
 import numpy as np
 
-from repos.multifractal.fluctuation_analysis import FluctuationAnalysis
-from repos.multifractal.simulator import Simulator
+from repos.multifractal.time_series.fluctuation_analysis import FluctuationAnalysis
+from repos.multifractal.time_series.simulator import Simulator
 
 
 i = 0
