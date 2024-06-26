@@ -2,7 +2,7 @@ import numpy as np
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 
-from multifractal.time_series.detrended_fluctuation_analysis import DFA
+from multifractal.src.time_series.detrended_fluctuation_analysis import DFA
 
 class MF_DFA(DFA):
     def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1, modified=False, nu_max=8):

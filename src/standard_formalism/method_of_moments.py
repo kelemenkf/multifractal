@@ -7,7 +7,7 @@ from scipy.optimize import curve_fit
 
 mpl.rcParams['figure.figsize'] = (15,5)
 
-from .multifractal import Multifractal
+from multifractal.src.multifractal import Multifractal
 
 
 class MethodOfMoments(Multifractal):

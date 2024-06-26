@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
 
-from repos.multifractal.stationary import TimeSeries
+from repos.multifractal.src.time_series.time_series import TimeSeries
 
 
 class RescaledRange(TimeSeries):
