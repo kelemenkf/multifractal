@@ -21,7 +21,6 @@ class TimeSeries():
         self.data_type = data_type
         #If the given data is not integrated the 0 is inserted as the Y_0
         if self.data_type == 'diff':
-            print('a')
             self.data = np.insert(self.data, 0, 0)
             self.data = np.cumsum(self.data)
             self.data_type == 'profile'

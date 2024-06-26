@@ -39,12 +39,10 @@ class FluctuationAnalysis(TimeSeries):
         fa = [self.mean_fluctuation()]
         for n in range(1, self.nu.size):
             self.i += 1
-            self.spl_data = self.split_data(self.data) 
-            self.spl_data_r = self.split_data(np.flip(self.data))
+            self.reset_data()
             fa.append(self.mean_fluctuation()) 
         self.i = 0
-        self.spl_data = self.split_data(self.data)
-        self.spl_data_r = self.split_data(np.flip(self.data))
+        self.reset_data()
         return np.log(fa), np.log(self.s)
 
 

@@ -22,7 +22,7 @@ class DFA(Nonstationary):
         self.m = m
         #Checks condition that s >= m + 2
         assert np.all(self.s >= self.m + 2)
-        self.alpha = self.calc_alpha()
+        self.alpha = self.calc_alpha()[1]
 
 
     def poly_fit_segment(self, segment):
@@ -35,7 +35,7 @@ class DFA(Nonstationary):
 
     def poly_coeffs_segment(self, Y, X):
         '''
-        Returns a self.N_s[self.i] x self.m + 1 matrix of polynomial coefficients for 
+        Returns a self.N_s[self.i] x (self.m + 1) matrix of polynomial coefficients for 
         each considered segment. 
         '''
         C = []
@@ -72,6 +72,10 @@ class DFA(Nonstationary):
         for i in range(0,X.size,self.s[self.i]):
             plt.axvline(X[i])
 
+    
+    def plot_Y_detrended(self):
+        pass
+
 
     def detrend_profile(self, Y, X):
         '''
@@ -97,7 +101,9 @@ class DFA(Nonstationary):
         Calculates the mean fluctuation (the square root of the mean of squared fluctuations).
         '''
         fa_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split),self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
+        print(fa_2.shape, fa_2)
         mean = np.mean(fa_2)
+        print(mean)
         return np.sqrt(mean)
 
 
@@ -109,18 +115,12 @@ class DFA(Nonstationary):
         for n in range(1, self.nu.size):
             self.i += 1
             self.reset_data()
-            fa.append(self.mean_fluctuation()) 
+            fa_s = self.mean_fluctuation()
+            print(fa_s, self.N_s[self.i], self.s[self.i])
+            fa.append(fa_s) 
         self.i = 0
         self.reset_data()
         return np.log(fa), np.log(self.s)
-
-
-    def plot_fa(self):
-        '''
-        Plots the logarithms of the FA_2(s) and self.s. 
-        '''
-        y, x = self.fluctuation_function()
-        plt.plot(x, y)
 
 
     def calc_alpha(self):
@@ -131,4 +131,18 @@ class DFA(Nonstationary):
         x = sm.add_constant(x)
         model = sm.OLS(y, x)  
         result = model.fit()
-        return result.params[1]
+        return result.params
+
+
+    def plot_fa(self):
+        '''
+        Plots the logarithms of the FA_2(s) and self.s, and the best fit line. 
+        '''
+        y, x = self.fluctuation_function()
+        plt.scatter(x, y)
+
+        params = self.calc_alpha()
+        best_fitted_y = params[0] + params[1] * x
+
+        plt.plot(x, best_fitted_y, label=f"Slope of line: {params[1]}")
+        plt.legend()
