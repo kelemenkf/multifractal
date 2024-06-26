@@ -110,7 +110,6 @@ class DFA(Nonstationary):
         '''
         fa_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split),self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
         mean = np.mean(fa_2)
-        print(f"The mean of the variance: {mean}")
         return np.sqrt(mean)
 
 
@@ -123,7 +122,6 @@ class DFA(Nonstationary):
             self.i += 1
             self.reset_data()
             fa_s = self.mean_fluctuation()
-            print(fa_s, self.N_s[self.i], self.s[self.i])
             fa.append(fa_s) 
         self.i = 0
         self.reset_data()
