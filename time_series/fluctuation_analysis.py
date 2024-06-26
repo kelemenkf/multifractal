@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import math
 import statsmodels.api as sm
 
-from repos.multifractal.time_series import TimeSeries
+from multifractal.time_series.time_series import TimeSeries
 
 
 class FluctuationAnalysis(TimeSeries):
