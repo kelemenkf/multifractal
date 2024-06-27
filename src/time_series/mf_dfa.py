@@ -133,6 +133,10 @@ class MF_DFA(DFA):
 
 
     def scaling_function(self):
+        '''
+        Plots the scaling function calculated from the estimated generalized Hurst 
+        function. 
+        '''
         tau = np.array(list(self.h_q.keys())) * np.array(list(self.h_q.values())) - 1
         plt.plot(self.h_q.keys(), tau)
         plt.xlabel("$q$")

@@ -4,7 +4,7 @@ import matplotlib as mlp
 import statsmodels.api as sm
 import math
 
-mlp.rcParams['figure.figsize'] = (16,9)
+mlp.rcParams['figure.figsize'] = (20,10)
 
 from multifractal.src.time_series.time_series import TimeSeries as Nonstationary
 
@@ -151,3 +151,6 @@ class DFA(Nonstationary):
 
         plt.plot(x, best_fitted_y, label=f"Slope of line: {params[1]}")
         plt.legend()
+
+
+    #TODO correction function
