@@ -6,7 +6,7 @@ import math
 
 mlp.rcParams['figure.figsize'] = (20,10)
 
-from multifractal.src.time_series.time_series import TimeSeries as Nonstationary
+from repos.multifractal.src.time_series.time_series import TimeSeries as Nonstationary
 
 
 class DFA(Nonstationary):
