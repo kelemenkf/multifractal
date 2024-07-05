@@ -19,7 +19,7 @@ samples = args.N_samples
 H = []
 
 
-print("Long-range uncorrelated series (Wiener Brownian Motion)")
+print("Long-range uncorrelated series (Wiener Brownian Motion):")
 while i < samples:
   sim = Simulator('bm', T=65536, dt_scale=1)
   sample = sim.sim_bm(65536)
@@ -29,5 +29,17 @@ while i < samples:
   H.append(h_mean)
   i += 1
 
+i = 0
+
+print("Long-range correlated series (Fractional Brownian Motion):")
+while i < samples:
+  sim = Simulator('fbm', T=65536, dt_scale=1, H=0.7)
+  sample = sim.sim_bm(65536)
+  mf_dfa = MF_DFA(sample[0], modified=False, data_type="profile", nu_max=10)
+  print(f"Mean: {np.mean(list(mf_dfa.h_q.values()))}, rang: {min(mf_dfa.h_q.values())}, {max(mf_dfa.h_q.values())})")
+  h_mean = np.mean(list(mf_dfa.h_q.values()))
+  H.append(h_mean)
+  i += 1
 
 
+#TODO statistical test
