@@ -137,15 +137,19 @@ class DataHandler():
         return minutes
     
 
-    def plot_x_diff(self, save=False, path="", name=""):
+    def plot_x_diff(self, save=False, path="", name="", ax=None):
         '''
         Plots the increments X(t) over the whole length of the dataset with delta_t of 
         1 day. 
         '''
-        plt.plot(self.data.index[1:], self.X[0])
-        plt.title("Returns")
-        plt.xlabel("$t$")
-        plt.ylabel("$ΔΧ(t)$")
+        if ax is None:
+            ax = plt.gca()
+        ax.plot(self.data.index[1:], self.X[0])
+        ax.set_title("Returns")
+        ax.set_xlabel("$t$")
+        diffusion = np.std(self.X[0])
+        ax.hlines([diffusion/2, -diffusion/2, 3*(diffusion/2), -3*(diffusion/2)], self.data.index[1], self.data.index[-1], colors='r')
+        ax.set_ylabel("$Daily (log)return$")
         if save: 
             plt.savefig(path + "/" + name)
             plt.close()
@@ -162,4 +166,3 @@ class DataHandler():
         if save:
             plt.savefig(path + "/" + name)
             plt.close()
-        

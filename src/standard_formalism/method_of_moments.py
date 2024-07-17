@@ -4,10 +4,11 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from scipy.optimize import curve_fit
+import sys
 
 mpl.rcParams['figure.figsize'] = (15,5)
 
-from multifractal.src.multifractal import Multifractal
+from repos.multifractal.src.multifractal import Multifractal
 
 
 class MethodOfMoments(Multifractal):
