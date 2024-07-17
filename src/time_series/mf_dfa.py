@@ -2,7 +2,7 @@ import numpy as np
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 
-from multifractal.src.time_series.detrended_fluctuation_analysis import DFA
+from repos.multifractal.src.time_series.detrended_fluctuation_analysis import DFA
 
 class MF_DFA(DFA):
     def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1, modified=False, nu_max=8):
@@ -114,17 +114,20 @@ class MF_DFA(DFA):
         return h_q
     
 
-    def plot_h_q(self):
+    def plot_h_q(self, save=False, path="", name=""):
         '''
         Plots the h(q) function.
         '''
         plt.plot(list(self.h_q.keys()), list(self.h_q.values()))
         plt.xlabel("$q$")
         plt.ylabel("$h(q)$")
+        if save:
+            plt.savefig(path + '/' + name, dpi=300)
+            plt.close()
 
 
     def plot_fa(self, Q=list(range(-5,6))):
-        '''
+        ''' 
         Plots the fluctuation functions for the different qs. 
         '''
         fa_q = self.fluctuation_functions()
@@ -144,6 +147,3 @@ class MF_DFA(DFA):
 
 
     #TODO spectrum
-
-
-

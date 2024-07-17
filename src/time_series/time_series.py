@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import matplotlib.pyplot as plt
 
 class TimeSeries():
     def __init__(self, data, b=2, method='dfa', nu_max=8, data_type='profile') -> None:
@@ -82,4 +83,12 @@ class TimeSeries():
         different scales wihtout looping.
         '''
         self.i = i
+        self.reset_data()
+
+
+    def shuffle_data(self):
+        rng = np.random.default_rng()
+        rng.shuffle(self.diff_data)
+        self.data = np.insert(self.data, 0, 0)
+        self.data = np.cumsum(self.data)
         self.reset_data()
