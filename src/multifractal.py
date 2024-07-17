@@ -59,7 +59,7 @@ class Multifractal():
 
     def get_measure(self, dt):
         '''
-        Return measure values for all box of size self.eps.
+        Return measure values for all boxes of size self.eps.
         '''
         measure = []
         for i in range(0,self.mu.size,dt):
@@ -92,6 +92,7 @@ class Multifractal():
         '''
         Checks if a random canonical measure satisifes the constraint of E[ΣM] = 1.
         '''
+        #TODO
         pass
 
 
@@ -189,14 +190,16 @@ class Multifractal():
         return self.mu.sum()
     
     
-    def plot_density(self):
+    def plot_density(self, ax=None, show=True):
         '''
         Plots the density function of the measure. 
         '''
-        fig, ax = plt.subplots()
-        plot = ax.bar(np.linspace(self.support_endpoints[0],self.support_endpoints[1],self.b**self.k,endpoint=False),self.mu/self.eps,self.support_endpoints[1]/(self.b**self.k),align='edge')
-        plt.show()
-            
+        if not ax:
+            fig, ax = plt.subplots()
+        ax.bar(np.linspace(self.support_endpoints[0],self.support_endpoints[1],self.b**self.k,endpoint=False),self.mu/self.eps,self.support_endpoints[1]/(self.b**self.k),align='edge')
+        if show:
+            plt.show()
+    
     
     def convert_address(self,address):
         '''
