@@ -6,7 +6,7 @@ from repos.multifractal.src.time_series.detrended_fluctuation_analysis import DF
 
 class MF_DFA(DFA):
     def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1, modified=False, nu_max=8):
-        super().__init__(data, b=b, method=method, m=m, data_type=data_type, nu_max=nu_max)
+        super().__init__(data, b=b, method=method, m=m, data_type=data_type, nu_max=nu_max) 
 
         '''
         self.data_type - assumes that the time series is not integrated, but the TimeSeries base class

@@ -93,6 +93,20 @@ class DFA(Nonstationary):
         for i in range(X.size,0,-self.s[self.i]):
             plt.axvline(X[i-1])
 
+    
+    def plot_poly_with_data(self, Y, X, save=False, path="", name=""):
+        '''
+        Plots the original data, the fitted polynomial functions and the detrended data
+        in the same plot.  
+        '''
+        self.plot_poly(Y, X)
+        plt.plot(X.flatten(), Y.flatten())
+        self.plot_Y_detrended(Y, X)
+        if save: 
+            plt.savefig(path + '/' + name, dpi=300)
+            plt.close()
+
+
 
     def squared_fluctuation(self, Y, X):
         '''
