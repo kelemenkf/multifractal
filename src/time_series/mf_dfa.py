@@ -1,6 +1,7 @@
 import numpy as np
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
+from scipy.misc import derivative
 
 from repos.multifractal.src.time_series.detrended_fluctuation_analysis import DFA
 
@@ -20,6 +21,7 @@ class MF_DFA(DFA):
             self.reset_data()
         self.fa_q = self.fluctuation_functions()
         self.h_q = self.calc_h_q()
+        self.specturm = self.calc_spectrum(self.h_q)
 
 
     def modified_data(self):
@@ -145,25 +147,48 @@ class MF_DFA(DFA):
         plt.xlabel("$q$")
         plt.ylabel("τ(q)")
 
-    
-    def discrete_slopes(self):
-        '''
-        Calculates a discrete apporximation of the derivative of the generalized Hurst exponent
-        - h(q). 
-        '''
-        slopes = []
-        h = list(self.h_q.values())
-        q = list(self.h_q.keys())
-        for i in range(1,len(self.h_q)):
-            slope = (h[i] - h[i-1]) / (q[i] - q[i-1])
-            slopes.append(slope)
-        return np.array(slopes)
+
+    def fit_h_q(self, h_q):
+        new_series = np.polynomial.polynomial.Polynomial.fit(list(h_q.keys()), list(h_q.values()), deg=4)
+        return new_series.convert().coef
     
 
-    def alphas(self):
+    def get_slopes(self, h_q):
+        coeffs = self.fit_h_q(h_q)
+        def f_x(x):
+            return coeffs[-1]*x**4 + coeffs[-2]*x**3 + coeffs[-3]*x**2 + coeffs[-4]*x** + coeffs[-5]
+        slopes = []
+        for i in list(h_q.keys()):
+            slopes.append(derivative(f_x, i, dx=1e-6))
+        return slopes
+
+
+    def alphas(self, h_q):
         '''
         Calculates the alpha values needed to obtain the specturm f(α)
         '''
-        slopes = self.discrete_slopes()
-        return np.array(self.h_q.values()) + np.array(self.h_q.keys()) * slopes
-    #TODO spectrum
+        slopes = self.get_slopes(h_q)
+        return np.array(list(h_q.values())) + (np.array(list(h_q.keys())) * slopes)
+
+
+    def calc_spectrum(self, h_q):
+        '''
+        Calculates the values taken by the multifractal spectrum. 
+        '''
+        alphas = self.alphas(h_q)
+        return np.array(list(h_q.keys())) * (alphas - np.array(list(h_q.values()))) + 1
+    
+
+    def plot_spectrum(self, h_q, save=False, path="", name=""):
+        '''
+        Plots the multifractal spectrum. 
+        '''
+        alphas = self.alphas(h_q)
+        f = self.calc_spectrum(h_q)
+        plt.plot(alphas, f)
+        plt.title('Multifractal specturm')
+        plt.xlabel('$alpha$')
+        plt.ylabel('$f(alpha)$')
+        if save:
+            plt.savefig(path + '/' + name, dpi=300)
+            plt.close()
