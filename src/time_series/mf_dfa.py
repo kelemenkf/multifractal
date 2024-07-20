@@ -143,10 +143,30 @@ class MF_DFA(DFA):
         function.
         '''
         tau = np.array(list(self.h_q.keys())) * np.array(list(self.h_q.values())) - 1
+        return tau
+    
+
+    def plot_scaling_function(self):
+        tau = self.scaling_function()
         plt.plot(self.h_q.keys(), tau)
         plt.xlabel("$q$")
         plt.ylabel("τ(q)")
 
+    
+    def legendre(self):
+        '''
+        Legendre transform the tau(q) function and returns the spectrum f(alpha).
+        '''
+        alphas = self.alphas(self.h_q)
+        tau = self.scaling_function()
+        q = list(self.h_q.keys())
+        f_alpha = {'f':np.array([]), 'alpha':np.array([])}
+        for i in range(len(alphas)):
+            f = alphas[i] * q[i] - tau[i]
+            f_alpha['f'] = np.append(f_alpha['f'], f)
+            f_alpha['alpha'] = np.append(f_alpha['alpha'], alphas[i])
+        return f_alpha
+    
 
     def fit_h_q(self, h_q):
         new_series = np.polynomial.polynomial.Polynomial.fit(list(h_q.keys()), list(h_q.values()), deg=4)
@@ -155,11 +175,12 @@ class MF_DFA(DFA):
 
     def get_slopes(self, h_q):
         coeffs = self.fit_h_q(h_q)
-        def f_x(x):
-            return coeffs[-1]*x**4 + coeffs[-2]*x**3 + coeffs[-3]*x**2 + coeffs[-4]*x** + coeffs[-5]
+        y = np.polyval(np.flip(coeffs), list(h_q.keys()))
+        def f(x):
+            return coeffs[-1]*x**4 + coeffs[-2]*x**3 + coeffs[-3]*x**2 + coeffs[-4]*x + coeffs[-5]
         slopes = []
         for i in list(h_q.keys()):
-            slopes.append(derivative(f_x, i, dx=1e-6))
+            slopes.append(derivative(f, i, dx=1e-6))
         return slopes
 
 
@@ -176,19 +197,34 @@ class MF_DFA(DFA):
         Calculates the values taken by the multifractal spectrum. 
         '''
         alphas = self.alphas(h_q)
-        return np.array(list(h_q.keys())) * (alphas - np.array(list(h_q.values()))) + 1
+        f = (np.array(list(h_q.keys())) * (alphas - np.array(list(h_q.values())))) + 1
+        return (f, alphas)
     
 
     def plot_spectrum(self, h_q, save=False, path="", name=""):
         '''
         Plots the multifractal spectrum. 
         '''
-        alphas = self.alphas(h_q)
-        f = self.calc_spectrum(h_q)
-        plt.plot(alphas, f)
+        f_alpha = self.legendre()
+        plt.plot(f_alpha['alpha'], f_alpha['f'])
         plt.title('Multifractal specturm')
         plt.xlabel('$alpha$')
         plt.ylabel('$f(alpha)$')
         if save:
             plt.savefig(path + '/' + name, dpi=300)
             plt.close()
+
+
+    def fit_spectrum(self, h_q):
+        f, alphas = self.calc_spectrum(h_q)
+        new_series = np.polynomial.polynomial.Polynomial.fit(alphas, f, deg=2)
+        roots = np.polynomial.polynomial.polyroots(new_series.convert().coef)
+        return roots
+
+
+    def delta_alpha(self, h_q):
+        '''
+        Calculates delta alpha for h_q.
+        '''
+        roots = self.fit_spectrum(h_q)
+        return abs(roots[0] - roots[1])
