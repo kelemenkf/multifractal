@@ -94,13 +94,16 @@ class DFA(Nonstationary):
             plt.axvline(X[i-1])
 
     
-    def plot_poly_with_data(self, Y, X, save=False, path="", name=""):
+    def plot_poly_with_data(self, Y, X, save=False, path="", name="", title=""):
         '''
         Plots the original data, the fitted polynomial functions and the detrended data
         in the same plot.  
         '''
         self.plot_poly(Y, X)
         plt.plot(X.flatten(), Y.flatten())
+        plt.title(title)
+        plt.xlabel("$t$")
+        plt.ylabel("$X(t)$")
         self.plot_Y_detrended(Y, X)
         if save: 
             plt.savefig(path + '/' + name, dpi=300)

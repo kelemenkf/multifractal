@@ -145,5 +145,25 @@ class MF_DFA(DFA):
         plt.xlabel("$q$")
         plt.ylabel("τ(q)")
 
+    
+    def discrete_slopes(self):
+        '''
+        Calculates a discrete apporximation of the derivative of the generalized Hurst exponent
+        - h(q). 
+        '''
+        slopes = []
+        h = list(self.h_q.values())
+        q = list(self.h_q.keys())
+        for i in range(1,len(self.h_q)):
+            slope = (h[i] - h[i-1]) / (q[i] - q[i-1])
+            slopes.append(slope)
+        return np.array(slopes)
+    
 
+    def alphas(self):
+        '''
+        Calculates the alpha values needed to obtain the specturm f(α)
+        '''
+        slopes = self.discrete_slopes()
+        return np.array(self.h_q.values()) + np.array(self.h_q.keys()) * slopes
     #TODO spectrum
