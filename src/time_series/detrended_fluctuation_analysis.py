@@ -10,7 +10,7 @@ from repos.multifractal.src.time_series.time_series import TimeSeries as Nonstat
 
 
 class DFA(Nonstationary):
-    def __init__(self, data, b=2, m=2, method='dfa', data_type='profile', nu_max=8):
+    def __init__(self, data, b=2, m=2, method='dfa', data_type='profile', nu_max=None):
         super().__init__(data, b, method, data_type=data_type, nu_max=nu_max)
 
         '''

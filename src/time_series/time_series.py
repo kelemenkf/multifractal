@@ -1,9 +1,8 @@
 import numpy as np
 import math
-import matplotlib.pyplot as plt
 
 class TimeSeries():
-    def __init__(self, data, b=2, method='dfa', nu_max=8, data_type='profile') -> None:
+    def __init__(self, data, b=2, method='dfa', data_type='profile', nu_max=None) -> None:
         '''
         self.data - the data to be analyzed. Format is an integrated time series. 
         self.data_type - wether the time series is integrated or not. Default if that it is.
@@ -26,13 +25,15 @@ class TimeSeries():
             self.data = np.cumsum(self.data)
             self.data_type == 'profile'
         self.method = method
-        self.nu_max = nu_max
         self.diff_data = np.diff(self.data)
         self.diff_data_r = np.flip(self.diff_data)
         self.b = b
-        self.nu = self.determine_limits()
         self.N = self.diff_data.size
-        self.N_s = self.b**self.nu
+        self.nu_max = nu_max
+        if self.nu_max == None:
+            self.nu_max = self.determine_nu_max()
+        self.nu = self.determine_limits()
+        self.N_s = np.array(self.b**self.nu).astype(int)
         self.s = self.N // self.N_s
         self.i = 0
         self.spl_data = self.split_data(self.data)
@@ -40,6 +41,11 @@ class TimeSeries():
         self.x = np.array(range(len(self.data)))
         self.x_split = self.split_data(self.x)
         self.x_split_r = self.split_data(np.flip(self.x))
+
+    
+    def determine_nu_max(self):
+        min_s = 11
+        return math.ceil(math.log(self.N // min_s, self.b))
 
 
     def determine_limits(self):
@@ -52,7 +58,6 @@ class TimeSeries():
         return np.array(range(self.nu_min,self.nu_max))
 
 
-    
     def split_data(self, data):
         '''
         Splits a time series of differences into self.nu, equidistant ranges,

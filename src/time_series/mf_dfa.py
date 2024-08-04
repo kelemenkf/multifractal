@@ -1,12 +1,15 @@
 import numpy as np
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
-from scipy.misc import derivative
+import math
+from scipy.misc import derivative 
+from scipy.optimize import curve_fit
+
 
 from repos.multifractal.src.time_series.detrended_fluctuation_analysis import DFA
 
 class MF_DFA(DFA):
-    def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1, modified=False, nu_max=8):
+    def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1, modified=False, nu_max=None):
         super().__init__(data, b=b, method=method, m=m, data_type=data_type, nu_max=nu_max) 
 
         '''
@@ -128,13 +131,19 @@ class MF_DFA(DFA):
             plt.close()
 
 
-    def plot_fa(self, Q=list(range(-5,6))):
+    def plot_fa(self, save=False, path="", name="", title=""):
         ''' 
         Plots the fluctuation functions for the different qs. 
         '''
         fa_q = self.fluctuation_functions()
-        for q in range(self.q_range.size):
+        for q in np.arange(0, 401, 10):
             plt.plot(np.log(self.s), np.log(fa_q[:,q]), label=[f"{q}"])
+        plt.xlabel('$ln(s)$')
+        plt.ylabel('$ln(F_q(s))$')
+        plt.title(title)
+        if save:
+            plt.savefig(path + '/' + name, dpi=300)
+            plt.close()
 
 
     def scaling_function(self):
@@ -205,8 +214,8 @@ class MF_DFA(DFA):
         '''
         Plots the multifractal spectrum. 
         '''
-        f_alpha = self.legendre()
-        plt.plot(f_alpha['alpha'], f_alpha['f'])
+        f, alphas = self.calc_spectrum(h_q)
+        plt.plot(alphas, f)
         plt.title('Multifractal specturm')
         plt.xlabel('$alpha$')
         plt.ylabel('$f(alpha)$')
@@ -216,15 +225,67 @@ class MF_DFA(DFA):
 
 
     def fit_spectrum(self, h_q):
+        '''
+        Fits a parabola to the estimated values of the spectrum. 
+        '''
         f, alphas = self.calc_spectrum(h_q)
         new_series = np.polynomial.polynomial.Polynomial.fit(alphas, f, deg=2)
-        roots = np.polynomial.polynomial.polyroots(new_series.convert().coef)
-        return roots
+        return new_series
 
 
     def delta_alpha(self, h_q):
         '''
         Calculates delta alpha for h_q.
         '''
-        roots = self.fit_spectrum(h_q)
+        new_series = self.fit_spectrum(h_q)
+        roots = np.polynomial.polynomial.polyroots(new_series.convert().coef)
         return abs(roots[0] - roots[1])
+    
+
+    def f_P(self, alpha, alpha_0, H):
+        '''
+        Define the functinal form of the spectrum of the price process. 
+        '''
+        return 1 - ((alpha - alpha_0)**2 / (4 * H * (alpha_0 - H)))
+    
+
+    def fit_P_spectrum(self, h_q):
+        '''
+        Fits the spectrum function to the data obtained by the Legendre transform. 
+        Returns alpha0, the maximum value of the parabola and the most likely exponent
+        for a given time interval. 
+        '''
+        f, alphas = self.calc_spectrum(h_q)
+        H = h_q[2.0]
+
+        plt.scatter(alphas, f)
+
+        params, _ = curve_fit(lambda alpha, alpha_0: self.f_P(alpha, alpha_0, H), alphas, f)
+
+        return params[0]  
+    
+
+    def plot_fitted_f_alpha(self, h_q):
+        f, alphas = self.calc_spectrum(h_q)
+        alpha_0 = self.fit_P_spectrum(h_q)
+        H = h_q[2.0]
+        f_fitted = self.f_P(alphas, alpha_0, H)
+        print(f_fitted)
+        print(alphas)
+        plt.plot(alphas, f_fitted)
+
+    
+    def get_lambda(self, h_q):
+        '''
+        Returns the estimated mean of the distribution of a lognormal multplier. 
+        '''
+        alpha_0 = self.fit_P_spectrum(h_q)
+        H = h_q[2.0]
+        return alpha_0  / H
+    
+
+    def get_sigma(self, h_q):
+        '''
+        Returns the estimated standard deviation of the distribution of a lognormal multiplier. 
+        '''
+        return np.sqrt(2 *  (self.get_lambda(h_q) - 1) /  math.log(self.b))
