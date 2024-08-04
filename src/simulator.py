@@ -135,16 +135,21 @@ class Simulator():
         return res[:n]
 
 
-    def plot_mmar(self):
+    def plot_mmar(self, save=False, path="", name=""):
         '''
         Plots a realization of a path of MMAR (cumulative returns). 
         '''
         y, x = self.sim_mmar()
         y = np.cumsum(y)
+        if self.sim_type == 'mmar_m':
+            plt.title("MMAR martingale cumulative")
         plt.plot(x[1:], y)
+        if save:
+            plt.savefig(path + '/' + name, dpi=300)
+            plt.close
 
     
-    def plot_mmar_diff(self):
+    def plot_mmar_diff(self, save=False, path="", name=""):
         '''
         Plots the increments of a realization of a simulated MMAR path. 
         '''
@@ -154,6 +159,9 @@ class Simulator():
             plt.title("MMAR martingale")
         plt.xlabel('t')
         plt.ylabel('X(t)')
+        if save:
+            plt.savefig(path + '/' + name, dpi=300)
+            plt.close()
 
 
     def get_stats(self, x):
@@ -222,11 +230,14 @@ class Simulator():
         return self.subordinator.cdf()
 
 
-    def plot_trading_time(self):
+    def plot_trading_time(self, save=False, path="", name=""):
         '''
         Plots a sample path of trading time, that is the cdf of the subordinator.
         '''
         self.subordinator.plot_cdf()
+        if save:
+            plt.savefig(path + '/' + name)
+            plt.close()
 
 
     def constraint_test(self, n=100):
