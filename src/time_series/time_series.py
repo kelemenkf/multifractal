@@ -15,7 +15,6 @@ class TimeSeries():
         self.i - an interator variable, designating the index of the current scale array self.s.
         It is used in R/S, FA and DFA to loop over the different scales and split the data
         at each scale. 
-        self.x - the index of the time series data, to be used in polyfit
         '''
         self.data = data
         self.data_type = data_type
