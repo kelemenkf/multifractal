@@ -11,7 +11,7 @@ class RescaledRange(TimeSeries):
     def __init__(self, data, b=2, nu_max=8, method='rs') -> None:
         super().__init__(data, b=b, nu_max=nu_max, method=method)
 
-        self.spl_data = self.split_data(self.diff_data)
+        self.spl_data = self.split_data(self.increments)
         self.H = self.calc_H()
         
 
@@ -72,10 +72,10 @@ class RescaledRange(TimeSeries):
         means = [self.average_rescaled_range()]
         for n in range(1, self.nu.size):
             self.i += 1
-            self.spl_data = self.split_data(self.diff_data) 
+            self.spl_data = self.split_data(self.increments) 
             means.append(self.average_rescaled_range()) 
         self.i = 0
-        self.spl_data = self.split_data(self.diff_data)
+        self.spl_data = self.split_data(self.increments)
         return np.log(means), np.log(self.s)
     
 

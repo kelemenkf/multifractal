@@ -125,7 +125,7 @@ class DFA(Nonstationary):
         '''
         Calculates the mean fluctuation (the square root of the mean of squared fluctuations).
         '''
-        fa_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split),self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
+        fa_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.time_index_split),self.squared_fluctuation(self.spl_data_r, self.time_index_split_reverse)))
         mean = np.mean(fa_2)
         return np.sqrt(mean)
 

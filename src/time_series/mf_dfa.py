@@ -9,7 +9,7 @@ from scipy.optimize import curve_fit
 from repos.multifractal.src.time_series.detrended_fluctuation_analysis import DFA
 
 class MF_DFA(DFA):
-    def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1, modified=False, nu_max=None):
+    def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='increments', q=[-5,5], gran=0.1, modified=False, nu_max=None):
         super().__init__(data, b=b, method=method, m=m, data_type=data_type, nu_max=nu_max) 
 
         '''
@@ -40,7 +40,7 @@ class MF_DFA(DFA):
         '''
         Calculates the fluctuation function with q = 0.
         '''
-        f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split), self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
+        f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.time_index_split), self.squared_fluctuation(self.spl_data_r, self.time_index_split_reverse)))
         fa_0 = np.exp(np.sum(np.log(f_2)) / (self.N_s[self.i] * 4))
         return fa_0
 
@@ -55,7 +55,7 @@ class MF_DFA(DFA):
             if q == 0:
                 fa.append(fa_0)
             else:
-                f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split), self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
+                f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.time_index_split), self.squared_fluctuation(self.spl_data_r, self.time_index_split_reverse)))
                 fa_q = np.mean((f_2**(q/2)))**(1/q)
                 fa.append(fa_q)
         return fa

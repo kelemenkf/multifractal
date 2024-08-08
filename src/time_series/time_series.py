@@ -15,20 +15,18 @@ class TimeSeries():
         self.i - an interator variable, designating the index of the current scale array self.s.
         It is used in R/S, FA and DFA to loop over the different scales and split the data
         at each scale. 
-        self.x - the index of the time series data, to be used in polyfit
         '''
         self.data = data
         self.data_type = data_type
-        #If the given data is not integrated the 0 is inserted as the Y_0
-        if self.data_type == 'diff':
+        if self.data_type == 'increment':
             self.data = np.insert(self.data, 0, 0)
             self.data = np.cumsum(self.data)
             self.data_type == 'profile'
         self.method = method
-        self.diff_data = np.diff(self.data)
-        self.diff_data_r = np.flip(self.diff_data)
+        self.increments = np.diff(self.data)
+        self.increments_reverse = np.flip(self.increments)
         self.b = b
-        self.N = self.diff_data.size
+        self.N = self.increments.size
         self.nu_max = nu_max
         if self.nu_max == None:
             self.nu_max = self.determine_nu_max()
@@ -38,9 +36,9 @@ class TimeSeries():
         self.i = 0
         self.spl_data = self.split_data(self.data)
         self.spl_data_r = self.split_data(np.flip(self.data))
-        self.x = np.array(range(len(self.data)))
-        self.x_split = self.split_data(self.x)
-        self.x_split_r = self.split_data(np.flip(self.x))
+        self.time_index = np.array(range(len(self.data)))
+        self.time_index_split = self.split_data(self.time_index)
+        self.time_index_split_reverse = self.split_data(np.flip(self.time_index))
 
     
     def determine_nu_max(self):
@@ -78,8 +76,8 @@ class TimeSeries():
         '''
         self.spl_data = self.split_data(self.data)
         self.spl_data_r = self.split_data(np.flip(self.data))
-        self.x_split = self.split_data(self.x)
-        self.x_split_r = self.split_data(np.flip(self.x))
+        self.time_index_split = self.split_data(self.time_index)
+        self.time_index_split_reverse = self.split_data(np.flip(self.time_index))
         
 
     def set_i(self, i):
