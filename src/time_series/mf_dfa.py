@@ -24,7 +24,7 @@ class MF_DFA(DFA):
             self.reset_data()
         self.fa_q = self.fluctuation_functions()
         self.h_q = self.calc_h_q()
-        self.specturm = self.calc_spectrum(self.h_q)
+        self.spectrum = self.calc_spectrum(self.h_q)
 
 
     def modified_data(self):
