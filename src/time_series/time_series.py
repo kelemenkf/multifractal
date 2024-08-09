@@ -16,7 +16,7 @@ class TimeSeries():
         '''
         self.data = data
         self.data_type = data_type
-        if self.data_type == 'increment':
+        if self.data_type == 'increments':
             self.data = np.insert(self.data, 0, 0)
             self.data = np.cumsum(self.data)
             self.data_type == 'profile'

@@ -21,7 +21,7 @@ class DFA(Nonstationary):
         '''
         self.m = m
         #Checks condition that s >= m + 2
-        assert np.all(self.s >= self.m + 2)
+        assert np.all(self.scale_lengths >= self.m + 2)
         self.alpha = self.calc_alpha()[1]
 
 

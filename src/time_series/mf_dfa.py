@@ -289,3 +289,10 @@ class MF_DFA(DFA):
         Returns the estimated standard deviation of the distribution of a lognormal multiplier. 
         '''
         return np.sqrt(2 *  (self.get_lambda(h_q) - 1) /  math.log(self.b))
+    
+
+    def get_params(self, h_q):
+        '''
+        Returns the parameters of the lognormal multipliers together
+        '''
+        return (self.get_lambda(h_q), self.get_sigma(h_q))
