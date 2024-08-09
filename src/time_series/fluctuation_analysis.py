@@ -43,7 +43,7 @@ class FluctuationAnalysis(TimeSeries):
             fa.append(self.mean_fluctuation()) 
         self.i = 0
         self.reset_data()
-        return np.log(fa), np.log(self.s)
+        return np.log(fa), np.log(self.scale_lengths)
 
 
     def plot_fa(self):

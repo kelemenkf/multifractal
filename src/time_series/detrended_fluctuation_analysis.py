@@ -69,7 +69,7 @@ class DFA(Nonstationary):
         Y = Y.flatten()
         X = X.flatten()
         plt.plot(X, Y)
-        for i in range(0,X.size,self.s[self.i]):
+        for i in range(0,X.size,self.scale_lengths[self.i]):
             plt.axvline(X[i])
 
 
@@ -90,7 +90,7 @@ class DFA(Nonstationary):
         Y = y.flatten()
         X = X.flatten()
         plt.plot(X, Y)
-        for i in range(X.size,0,-self.s[self.i]):
+        for i in range(X.size,0,-self.scale_lengths[self.i]):
             plt.axvline(X[i-1])
 
     
@@ -125,7 +125,7 @@ class DFA(Nonstationary):
         '''
         Calculates the mean fluctuation (the square root of the mean of squared fluctuations).
         '''
-        fa_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split),self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
+        fa_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.time_index_split),self.squared_fluctuation(self.spl_data_r, self.time_index_split_reverse)))
         mean = np.mean(fa_2)
         return np.sqrt(mean)
 
@@ -142,7 +142,7 @@ class DFA(Nonstationary):
             fa.append(fa_s) 
         self.i = 0
         self.reset_data()
-        return np.log(fa), np.log(self.s)
+        return np.log(fa), np.log(self.scale_lengths)
 
 
     def calc_alpha(self):

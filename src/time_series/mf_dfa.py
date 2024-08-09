@@ -9,7 +9,7 @@ from scipy.optimize import curve_fit
 from repos.multifractal.src.time_series.detrended_fluctuation_analysis import DFA
 
 class MF_DFA(DFA):
-    def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='diff', q=[-5,5], gran=0.1, modified=False, nu_max=None):
+    def __init__(self, data, b=2, method='mf_dfa', m=2, data_type='increments', q=[-5,5], gran=0.1, modified=False, nu_max=None):
         super().__init__(data, b=b, method=method, m=m, data_type=data_type, nu_max=nu_max) 
 
         '''
@@ -24,7 +24,7 @@ class MF_DFA(DFA):
             self.reset_data()
         self.fa_q = self.fluctuation_functions()
         self.h_q = self.calc_h_q()
-        self.specturm = self.calc_spectrum(self.h_q)
+        self.spectrum = self.calc_spectrum(self.h_q)
 
 
     def modified_data(self):
@@ -40,7 +40,7 @@ class MF_DFA(DFA):
         '''
         Calculates the fluctuation function with q = 0.
         '''
-        f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split), self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
+        f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.time_index_split), self.squared_fluctuation(self.spl_data_r, self.time_index_split_reverse)))
         fa_0 = np.exp(np.sum(np.log(f_2)) / (self.N_s[self.i] * 4))
         return fa_0
 
@@ -55,7 +55,7 @@ class MF_DFA(DFA):
             if q == 0:
                 fa.append(fa_0)
             else:
-                f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.x_split), self.squared_fluctuation(self.spl_data_r, self.x_split_r)))
+                f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.time_index_split), self.squared_fluctuation(self.spl_data_r, self.time_index_split_reverse)))
                 fa_q = np.mean((f_2**(q/2)))**(1/q)
                 fa.append(fa_q)
         return fa
@@ -85,7 +85,7 @@ class MF_DFA(DFA):
         print(q_index)
         data = self.fa_q[:, q_index]
         y = np.log(data)
-        x = np.log(self.s)
+        x = np.log(self.scale_lengths)
         params = self.get_slope(y, x)
 
         plt.scatter(x, y)
@@ -114,7 +114,7 @@ class MF_DFA(DFA):
         h_q = {}
         data = self.fa_q
         for q in range(data.shape[1]):
-            h = self.get_slope(np.log(data[:, q]), np.log(self.s))[1]
+            h = self.get_slope(np.log(data[:, q]), np.log(self.scale_lengths))[1]
             h_q.update({self.q_range[q]:h})
         return h_q
     
@@ -137,7 +137,7 @@ class MF_DFA(DFA):
         '''
         fa_q = self.fluctuation_functions()
         for q in np.arange(0, 401, 10):
-            plt.plot(np.log(self.s), np.log(fa_q[:,q]), label=[f"{q}"])
+            plt.plot(np.log(self.scale_lengths), np.log(fa_q[:,q]), label=[f"{q}"])
         plt.xlabel('$ln(s)$')
         plt.ylabel('$ln(F_q(s))$')
         plt.title(title)
