@@ -10,21 +10,23 @@ from .multifractal import Multifractal
 
 
 class Simulator():
-    def __init__(self, sim_type='bm', T=1000, dt_scale=1, H=0.5, loc=0, scale=1, drift=0, diffusion=1):
+    def __init__(self, sim_type='bm', sim_length=1000, increment_length=1, H=0.5, multifractal_location=0, multifractal_scale=1, brownian_drift=0, brownian_diffusion=1):
         self.sim_type = sim_type
-        self.T = T
-        self.dt_scale = dt_scale
-        self.k = math.ceil(math.log(self.T, 2)) 
+        self.sim_length = sim_length
+        self.increment_length = increment_length
+        self.k = math.ceil(math.log(self.sim_length, 2)) 
         self.H = H
-        self.loc = loc
-        self.scale = scale
+        self.params = {
+            'location': multifractal_location, 
+            'scale':multifractal_scale
+        }
         self.subordinator = self.set_subordinator()
         if self.sim_type == 'mmar_r' or self.sim_type == 'mmar':
-            self.T = self.subordinator.b**self.k
-        self.drift = drift
-        self.diffusion = diffusion
+            sim_length = self.subordinator.b**self.k
+        self.drift = brownian_drift
+        self.diffusion = brownian_diffusion
         self.subordinated = self.set_subordinated()
-        self.n = self.T // self.dt_scale
+        self.n = self.sim_length // self.increment_length
 
 
     def set_subordinator(self):
@@ -32,7 +34,7 @@ class Simulator():
         Instantiates a multiplicative multifractal measure using lognormal multipliers,
         and loc and scale parameters, with support [0,T]. This is the model for trading time.  
         '''
-        theta = Multifractal('lognormal', loc=self.loc, scale=self.scale, plot=False, support_endpoints=[0, self.T])
+        theta = Multifractal('lognormal', loc=self.params['location'], scale=self.params['scale'], plot=False, support_endpoints=[0, self.sim_length])
         return theta
 
 
@@ -42,9 +44,9 @@ class Simulator():
         only this function will run. 
         '''
         if self.sim_type in ['mmar_m', 'bm']:
-            return BrownianMotion(drift=self.drift, scale=self.diffusion, t=self.T)
+            return BrownianMotion(drift=self.drift, scale=self.diffusion, t=self.sim_length)
         elif self.sim_type in ['mmar', 'fbm']:
-            return FractionalBrownianMotion(hurst=self.H, t=self.T)
+            return FractionalBrownianMotion(hurst=self.H, t=self.sim_length)
         
 
     def sim_bm(self, n):
@@ -73,7 +75,7 @@ class Simulator():
 
         self.subordinator.iterate(self.k)
 
-        mu = self.subordinator.get_measure(self.dt_scale)
+        mu = self.subordinator.get_measure(self.increment_length)
 
         mu_increment = np.sqrt(mu)
 
@@ -107,16 +109,16 @@ class Simulator():
         res = np.array([])
 
         #Remembers the parameters of the instantiated object.
-        cache = (self.T, self.dt_scale)
+        cache = (self.sim_length, self.increment_length)
 
         #Sets k so it can produce at least the number of increments as given in n.
         self.k = math.ceil(math.log(n*dt, self.subordinator.b))
 
         #Sets T so the max time is the same as the minimum required to produce n. 
-        self.T = self.subordinator.b**self.k
+        self.sim_length = self.subordinator.b**self.k
 
         #Sets Δt so it produces realizations at the increments we want. 
-        self.dt_scale = dt
+        self.increment_length = dt
 
         #Passes the parameters to the return process. 
         self.subordinated = self.set_subordinated()
@@ -126,9 +128,9 @@ class Simulator():
         res = np.append(res, y)
 
         #Resets the original parameters passed at object instantiation.  
-        self.T = cache[0]
-        self.k = math.ceil(math.log(self.T, 2))
-        self.dt_scale = cache[1]
+        self.sim_length = cache[0]
+        self.k = math.ceil(math.log(self.sim_length, 2))
+        self.increment_length = cache[1]
         self.subordinated = self.set_subordinated()
         self.subordinator = self.set_subordinator()
 
