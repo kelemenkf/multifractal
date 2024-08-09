@@ -49,7 +49,7 @@ class Simulator():
             return FractionalBrownianMotion(hurst=self.H, t=self.sim_length)
         
 
-    def sim_bm(self, n):
+    def simulate_bm(self, n):
         '''
         Simulates a discretized path with sample size n of a Brownian motion or Fractional brownian motion
         and returns both the time indexes and the realization of the process at that time. 
@@ -61,7 +61,7 @@ class Simulator():
             return (self.subordinated.sample(n), times)
 
 
-    def sim_mmar(self, profile=False, check=False):
+    def simulate_mmar(self, profile=False, check=False):
         '''
         Simulates one path of a multifractal price series. If sim_type is 'mmar_m', 
         it simulates the martingale version using a standard Brwonian motion. If sim_type 
@@ -88,7 +88,7 @@ class Simulator():
         elif self.sim_type == 'mmar':
             self.sim_type = 'fbm'
 
-        s, times = self.sim_bm(mu_increment_size)
+        s, times = self.simulate_bm(mu_increment_size)
         s = np.diff(s)
 
         if check: 
@@ -101,7 +101,7 @@ class Simulator():
         return (s*mu_increment, times)
 
 
-    def sim_mmar_n(self, n, dt):
+    def simulate_mmar_n(self, n, dt):
         '''
         Plots a realizationn of a path of MMAR. The whole path does not preserve the 
         measure of trading time. 
@@ -124,7 +124,7 @@ class Simulator():
         self.subordinated = self.set_subordinated()
         self.subordinators = self.set_subordinator()
         
-        y, _ = self.sim_mmar()
+        y, _ = self.simulate_mmar()
         res = np.append(res, y)
 
         #Resets the original parameters passed at object instantiation.  
@@ -141,7 +141,7 @@ class Simulator():
         '''
         Plots a realization of a path of MMAR (cumulative returns). 
         '''
-        y, x = self.sim_mmar()
+        y, x = self.simulate_mmar()
         y = np.cumsum(y)
         if self.sim_type == 'mmar_m':
             plt.title("MMAR martingale cumulative")
@@ -155,7 +155,7 @@ class Simulator():
         '''
         Plots the increments of a realization of a simulated MMAR path. 
         '''
-        y, x = self.sim_mmar()
+        y, x = self.simulate_mmar()
         plt.plot(x[1:], y)
         if self.sim_type == 'mmar_m':
             plt.title("MMAR martingale")
@@ -188,7 +188,7 @@ class Simulator():
         '''
         MSD = []
         for i in range(n):
-            y, _ = self.sim_bm(self.n)
+            y, _ = self.simulate_bm(self.n)
             sd = self.calculate_squared_displacement(y[0], y[-1])
             MSD.append(sd)
         return np.mean(MSD)
@@ -198,7 +198,7 @@ class Simulator():
         '''
         Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
         '''
-        y, x = self.sim_bm(self.n)
+        y, x = self.simulate_bm(self.n)
         if self.sim_type == 'bm':
             plt.title('Brownian Motion')
         elif self.sim_type == 'fbm':
@@ -212,7 +212,7 @@ class Simulator():
         '''
         Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
         '''
-        y, x = self.sim_bm(self.n)
+        y, x = self.simulate_bm(self.n)
         y = np.diff(y)
         mu, sigma = self.get_stats(y)
         print(f"Mean: {mu}, Standard deviation: {sigma}")
@@ -242,7 +242,7 @@ class Simulator():
             plt.close()
 
 
-    def constraint_test(self, number_of_simulation=100):
+    def test_multiplier_constraint(self, number_of_simulation=100):
         '''
         Tests if the measure of trading time equals 1 on average, by simulating n 
         paths of the MMAR and taking the mean of the 100 different cumulative measures. 
@@ -250,26 +250,26 @@ class Simulator():
         measures = []
         for i in range(number_of_simulation):
             print(i)
-            single_cumulative_measure = self.sim_mmar(check=True)
+            single_cumulative_measure = self.simulate_mmar(check=True)
             measures.append(single_cumulative_measure)
         return np.mean(np.array(measures))
     
 
-    def sim_price(self, P0=10):
+    def simulate_price(self, P0=10):
         '''
         Simulates a path of price instead of return, with P0 being the starting value. 
         '''
-        x, _ = self.sim_mmar()
-        x = np.cumsum(x)
+        x, _ = self.simulate_mmar()
+        cumulative_x = np.cumsum(x)
         log_p0 = math.log(P0)
-        log_p = x + log_p0
-        return np.exp(log_p)
+        log_price_series = cumulative_x + log_p0
+        return np.exp(log_price_series)
     
 
     def plot_price(self, P0):
         '''
         Plots a simulated price path with P0 being the starting value. 
         '''
-        y = self.sim_price(P0)
+        y = self.simulate_price(P0)
         x = range(len(y))
         plt.plot(x, y)
