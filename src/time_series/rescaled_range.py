@@ -76,7 +76,7 @@ class RescaledRange(TimeSeries):
             means.append(self.average_rescaled_range()) 
         self.i = 0
         self.spl_data = self.split_data(self.increments)
-        return np.log(means), np.log(self.s)
+        return np.log(means), np.log(self.scale_lengths)
     
 
     def plot_fa_function(self):

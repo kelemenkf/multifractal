@@ -4,9 +4,7 @@ import math
 class TimeSeries():
     def __init__(self, data, b=2, method='dfa', data_type='profile', nu_max=None) -> None:
         '''
-        self.data - the data to be analyzed. Format is an integrated time series. 
         self.data_type - wether the time series is integrated or not. Default if that it is.
-        self.N - the length of the data
         self.b - the scalar with which the data is scaled. E.g. if b = 2, the scales considred are always 
         half that of the previous ones. 
         self.nu - the number of different scales considered in the analysis
@@ -26,13 +24,13 @@ class TimeSeries():
         self.increments = np.diff(self.data)
         self.increments_reverse = np.flip(self.increments)
         self.b = b
-        self.N = self.increments.size
+        self.data_length = self.increments.size
         self.nu_max = nu_max
         if self.nu_max == None:
             self.nu_max = self.determine_nu_max()
         self.nu = self.determine_limits()
         self.N_s = np.array(self.b**self.nu).astype(int)
-        self.s = self.N // self.N_s
+        self.scale_lengths = self.data_length // self.N_s
         self.i = 0
         self.spl_data = self.split_data(self.data)
         self.spl_data_r = self.split_data(np.flip(self.data))
@@ -42,8 +40,8 @@ class TimeSeries():
 
     
     def determine_nu_max(self):
-        min_s = 11
-        return math.ceil(math.log(self.N // min_s, self.b))
+        MINIMUM_SCALE_LENGTH = 11
+        return math.ceil(math.log(self.data_length // MINIMUM_SCALE_LENGTH, self.b))
 
 
     def determine_limits(self):
@@ -63,8 +61,8 @@ class TimeSeries():
         is not exactly equal to the number of segments times the size of the segments, 
         the residual data is left off.
         '''
-        split_data = [data[i:i+self.s[self.i]] for i in range(0,self.N,self.s[self.i])]
-        if self.N_s[self.i] * self.s[self.i] != self.N:
+        split_data = [data[i:i+self.scale_lengths[self.i]] for i in range(0,self.data_length,self.scale_lengths[self.i])]
+        if self.N_s[self.i] * self.scale_lengths[self.i] != self.data_length:
             return np.array(split_data[:self.N_s[self.i]])
         else:
             return np.array(split_data[:self.N_s[self.i]])
