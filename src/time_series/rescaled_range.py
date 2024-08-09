@@ -37,7 +37,7 @@ class RescaledRange(TimeSeries):
         '''
         Returns the maximum minus the minimum of the deviate series in each range.
         '''
-        range = np.max(self.integrate_series(), axis=1) - np.min(self.integrate_series(), axis=1)
+        range = np.max(self.integrate_series, axis=1) - np.min(self.integrate_series(), axis=1)
         return range
 
 
@@ -71,10 +71,10 @@ class RescaledRange(TimeSeries):
         '''
         means = [self.average_rescaled_range()]
         for n in range(1, self.nu.size):
-            self.i += 1
+            self.scale_iterator += 1
             self.spl_data = self.split_data(self.increments) 
             means.append(self.average_rescaled_range()) 
-        self.i = 0
+        self.scale_iterator = 0
         self.spl_data = self.split_data(self.increments)
         return np.log(means), np.log(self.scale_lengths)
     

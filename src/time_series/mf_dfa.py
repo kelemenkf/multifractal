@@ -41,7 +41,7 @@ class MF_DFA(DFA):
         Calculates the fluctuation function with q = 0.
         '''
         f_2 = np.concatenate((self.squared_fluctuation(self.spl_data, self.time_index_split), self.squared_fluctuation(self.spl_data_r, self.time_index_split_reverse)))
-        fa_0 = np.exp(np.sum(np.log(f_2)) / (self.N_s[self.i] * 4))
+        fa_0 = np.exp(np.sum(np.log(f_2)) / (self.N_s[self.scale_iterator] * 4))
         return fa_0
 
 
@@ -68,10 +68,10 @@ class MF_DFA(DFA):
         '''
         fa_q = [self.q_fluctuation()]
         for n in range(1, self.nu.size):
-            self.i += 1
+            self.scale_iterator += 1
             self.reset_data()
             fa_q.append(self.q_fluctuation())
-        self.i = 0
+        self.scale_iterator = 0
         self.reset_data()
         return np.array(fa_q)
     

@@ -10,8 +10,8 @@ class TimeSeries():
         self.nu - the number of different scales considered in the analysis
         self.s - the lengths of the segments at each scale
         self.N_s - the number of segments at each scale 
-        self.i - an interator variable, designating the index of the current scale array self.s.
-        It is used in R/S, FA and DFA to loop over the different scales and split the data
+        self.scale_iterator - designates the current index of the scale array self.scale_lengths.
+        It is used in R/S, FA, DFA and MF_DFA to loop over the different scales and split the data
         at each scale. 
         '''
         self.data = data
@@ -31,7 +31,7 @@ class TimeSeries():
         self.nu = self.determine_limits()
         self.N_s = np.array(self.b**self.nu).astype(int)
         self.scale_lengths = self.data_length // self.N_s
-        self.i = 0
+        self.scale_iterator = 0
         self.spl_data = self.split_data(self.data)
         self.spl_data_r = self.split_data(np.flip(self.data))
         self.time_index = np.array(range(len(self.data)))
@@ -40,11 +40,17 @@ class TimeSeries():
 
     
     def determine_nu_max(self):
+        '''
+        Determines the the upper limit of the the allowable iterations.
+        '''
         MINIMUM_SCALE_LENGTH = 11
         return math.ceil(math.log(self.data_length // MINIMUM_SCALE_LENGTH, self.b))
 
 
     def determine_limits(self):
+        '''
+        Determines the limits of the allowable scales for the different methods.
+        '''
         if self.method == 'fa':
             self.nu_min = math.ceil(math.log(10,self.b))
         elif self.method == 'dfa' or self.method == 'mf_dfa':
@@ -57,20 +63,20 @@ class TimeSeries():
     def split_data(self, data):
         '''
         Splits a time series of differences into self.nu, equidistant ranges,
-        and returns it as a sefl.N_s[self.i] x self.s matrix. If the size of the data,
+        and returns it as a sefl.N_s[self.scale_iterator] x self.s matrix. If the size of the data,
         is not exactly equal to the number of segments times the size of the segments, 
         the residual data is left off.
         '''
-        split_data = [data[i:i+self.scale_lengths[self.i]] for i in range(0,self.data_length,self.scale_lengths[self.i])]
-        if self.N_s[self.i] * self.scale_lengths[self.i] != self.data_length:
-            return np.array(split_data[:self.N_s[self.i]])
+        split_data = [data[i:i+self.scale_lengths[self.scale_iterator]] for i in range(0,self.data_length,self.scale_lengths[self.scale_iterator])]
+        if self.N_s[self.scale_iterator] * self.scale_lengths[self.scale_iterator] != self.data_length:
+            return np.array(split_data[:self.N_s[self.scale_iterator]])
         else:
-            return np.array(split_data[:self.N_s[self.i]])
+            return np.array(split_data[:self.N_s[self.scale_iterator]])
         
 
     def reset_data(self):
         '''
-        Redoes the splitting of the data with the current value of self.i.
+        Splits both the original and the reversed series, as well as the index and the reversed index.
         '''
         self.spl_data = self.split_data(self.data)
         self.spl_data_r = self.split_data(np.flip(self.data))
@@ -78,18 +84,17 @@ class TimeSeries():
         self.time_index_split_reverse = self.split_data(np.flip(self.time_index))
         
 
-    def set_i(self, i):
+    def set_scale_iterator(self, iterator):
         '''
-        Sets the iterator variable self.i for inspection of the estimation at 
-        different scales wihtout looping.
+        Sets the iterator variable self.scale_iterator manually.
         '''
-        self.i = i
+        self.scale_iterator = iterator
         self.reset_data()
 
 
     def shuffle_data(self):
+        '''
+        Shuffles the increment series of self.data.
+        '''
         rng = np.random.default_rng()
-        rng.shuffle(self.diff_data)
-        self.data = np.insert(self.data, 0, 0)
-        self.data = np.cumsum(self.data)
-        self.reset_data()
+        rng.shuffle(self.increments)

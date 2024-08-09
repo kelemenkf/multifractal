@@ -35,11 +35,11 @@ class DFA(Nonstationary):
 
     def poly_coeffs_segment(self, Y, X):
         '''
-        Returns a self.N_s[self.i] x (self.m + 1) matrix of polynomial coefficients for 
+        Returns a self.N_s[self.scale_iterator] x (self.m + 1) matrix of polynomial coefficients for 
         each considered segment. 
         '''
         C = []
-        for n in range(self.N_s[self.i]):
+        for n in range(self.N_s[self.scale_iterator]):
             segment = (X[n, :], Y[n, :])
             coeffs = self.poly_fit_segment(segment)
             C.append(coeffs)
@@ -48,12 +48,12 @@ class DFA(Nonstationary):
 
     def poly_vals_segment(self, Y, X):
         '''
-        Returns a self.N_s[self.i] x self.s matrix of values of the fitted polynomial function,
+        Returns a self.N_s[self.scale_iterator] x self.s matrix of values of the fitted polynomial function,
         at each segment. 
         '''
         C = self.poly_coeffs_segment(Y, X)
         Y_fitted = []
-        for n in range(self.N_s[self.i]):
+        for n in range(self.N_s[self.scale_iterator]):
             x = X[n, :]
             c = C[n]
             y = np.polyval(c, x)
@@ -69,7 +69,7 @@ class DFA(Nonstationary):
         Y = Y.flatten()
         X = X.flatten()
         plt.plot(X, Y)
-        for i in range(0,X.size,self.scale_lengths[self.i]):
+        for i in range(0,X.size,self.scale_lengths[self.scale_iterator]):
             plt.axvline(X[i])
 
 
@@ -90,7 +90,7 @@ class DFA(Nonstationary):
         Y = y.flatten()
         X = X.flatten()
         plt.plot(X, Y)
-        for i in range(X.size,0,-self.scale_lengths[self.i]):
+        for i in range(X.size,0,-self.scale_lengths[self.scale_iterator]):
             plt.axvline(X[i-1])
 
     
@@ -136,11 +136,11 @@ class DFA(Nonstationary):
         '''
         fa = [self.mean_fluctuation()]
         for n in range(1, self.nu.size):
-            self.i += 1
+            self.scale_iterator += 1
             self.reset_data()
             fa_s = self.mean_fluctuation()
             fa.append(fa_s) 
-        self.i = 0
+        self.scale_iterator = 0
         self.reset_data()
         return np.log(fa), np.log(self.scale_lengths)
 
