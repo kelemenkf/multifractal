@@ -173,7 +173,7 @@ class Simulator():
         return np.mean(x), np.std(x)
 
 
-    def squared_displacement(self, x0, xt):
+    def calculate_squared_displacement(self, x0, xt):
         '''
         Returns the squared siplacement of a stochastic process at xt, if the process
         started at x0.
@@ -181,7 +181,7 @@ class Simulator():
         return (xt-x0)**2
     
 
-    def msd(self, n):
+    def calcualte_mean_squared_displacement(self, n):
         '''
         Calculates the mean squared displacement of a process by simulating it n times
         calcualting the squared displacement each time and return the mean of that array. 
@@ -189,7 +189,7 @@ class Simulator():
         MSD = []
         for i in range(n):
             y, _ = self.sim_bm(self.n)
-            sd = self.squared_displacement(y[0], y[-1])
+            sd = self.calculate_squared_displacement(y[0], y[-1])
             MSD.append(sd)
         return np.mean(MSD)
     
@@ -242,16 +242,17 @@ class Simulator():
             plt.close()
 
 
-    def constraint_test(self, n=100):
+    def constraint_test(self, number_of_simulation=100):
         '''
-        Tests if the measure of trading time equals 1 on average. 
+        Tests if the measure of trading time equals 1 on average, by simulating n 
+        paths of the MMAR and taking the mean of the 100 different cumulative measures. 
         '''
-        M = []
-        for i in range(n):
+        measures = []
+        for i in range(number_of_simulation):
             print(i)
-            mu = self.sim_mmar(check=True)
-            M.append(mu)
-        return np.mean(np.array(M))
+            single_cumulative_measure = self.sim_mmar(check=True)
+            measures.append(single_cumulative_measure)
+        return np.mean(np.array(measures))
     
 
     def sim_price(self, P0=10):
