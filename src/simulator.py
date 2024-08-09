@@ -194,7 +194,7 @@ class Simulator():
         return np.mean(MSD)
     
 
-    def plot_process(self):
+    def plot_brownian_process(self):
         '''
         Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
         '''
@@ -208,7 +208,7 @@ class Simulator():
         plt.ylabel('W(t)')
 
 
-    def plot_noise(self):
+    def plot_brownian_noise(self):
         '''
         Plots the increments of a simple Brownian motion/Fractional Brownian Motion. 
         '''
@@ -242,17 +242,17 @@ class Simulator():
             plt.close()
 
 
-    def test_multiplier_constraint(self, number_of_simulation=100):
+    def test_multiplier_constraint(self, number_of_simulations=100):
         '''
         Tests if the measure of trading time equals 1 on average, by simulating n 
         paths of the MMAR and taking the mean of the 100 different cumulative measures. 
         '''
-        measures = []
-        for i in range(number_of_simulation):
+        cumulative_measures = []
+        for i in range(number_of_simulations):
             print(i)
             single_cumulative_measure = self.simulate_mmar(check=True)
-            measures.append(single_cumulative_measure)
-        return np.mean(np.array(measures))
+            cumulative_measures.append(single_cumulative_measure)
+        return np.mean(np.array(cumulative_measures))
     
 
     def simulate_price(self, P0=10):
