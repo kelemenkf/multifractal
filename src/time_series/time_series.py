@@ -33,7 +33,7 @@ class TimeSeries():
         self.scale_lengths = self.data_length // self.N_s
         self.scale_iterator = 0
         self.spl_data = self.split_data(self.data)
-        self.spl_data_r = self.split_data(np.flip(self.data))
+        self.spl_data_reverse = self.split_data(np.flip(self.data))
         self.time_index = np.array(range(len(self.data)))
         self.time_index_split = self.split_data(self.time_index)
         self.time_index_split_reverse = self.split_data(np.flip(self.time_index))
@@ -79,7 +79,7 @@ class TimeSeries():
         Splits both the original and the reversed series, as well as the index and the reversed index.
         '''
         self.spl_data = self.split_data(self.data)
-        self.spl_data_r = self.split_data(np.flip(self.data))
+        self.spl_data_reverse = self.split_data(np.flip(self.data))
         self.time_index_split = self.split_data(self.time_index)
         self.time_index_split_reverse = self.split_data(np.flip(self.time_index))
         

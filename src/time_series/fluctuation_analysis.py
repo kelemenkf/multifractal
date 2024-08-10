@@ -27,7 +27,7 @@ class FluctuationAnalysis(TimeSeries):
         '''
         Calculates the mean fluctuation (the square root of the mean of squared fluctuations).
         '''
-        fa_2 = self.squared_fluctuation(self.spl_data) + self.squared_fluctuation(self.spl_data_r)
+        fa_2 = self.squared_fluctuation(self.spl_data) + self.squared_fluctuation(self.spl_data_reverse)
         mean = np.mean(fa_2)
         return np.sqrt(mean)
     
